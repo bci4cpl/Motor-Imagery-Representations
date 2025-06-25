@@ -1,0 +1,88 @@
+# Shared base paths to eliminate redundancy
+motor_imagery_skill_dir: "D:/Niv/Motor imagery skill/weights"
+data_root: "d:/Niv/Data"
+
+subjects:
+  - id: "201"
+    data:
+      sub: "201"
+      eyes_state: "CC"
+      data_dir: "{data_root}"
+      block: [1]
+      trial_len: 6
+      filter_lim: [1, 40]
+      elec_idxs: [0,1,2,3,4,5,6,7,8,9,10]
+    ae_dir: "{motor_imagery_skill_dir}/AE/sub_{id}"
+    clf_dir: "{motor_imagery_skill_dir}/clf/sub_{id}"
+    n_components: 6
+    ae_paths:
+      one_epoch: "{ae_dir}/unsupervised_model_parameters_one_epoch.pt"
+      full:      "{ae_dir}/ae_epoch_200.pt"
+    clf_paths:
+      best_model: "{clf_dir}/best_model_{n_components}.pkl"
+      pca2d:      "{clf_dir}/pca2D_reducer.pkl"
+      umap2d:     "{clf_dir}/umap2D_reducer.pkl"
+      pca3d:      "{clf_dir}/pca3D_reducer.pkl"
+      umap3d:     "{clf_dir}/umap3D_reducer.pkl"
+    cache_dir: "./cache/sub_{id}"
+    figures:
+      base:         "./Figures/sub_{id}"
+      window10:     "./Figures/sub_{id}/10_day_window"
+      centers:      "./Figures/sub_{id}/centers"
+      trial_window: "./Figures/sub_{id}/trial_window"
+
+  - id: "205"
+    data:
+      sub: "205"
+      eyes_state: "CC"
+      data_dir: "{data_root}"
+      block: [1,2,3]
+      trial_len: 6
+      filter_lim: [1, 40]
+      elec_idxs: [0,1,2,3,4,5,6,7,8,9,10]
+    ae_dir: "{motor_imagery_skill_dir}/AE/sub_{id}"
+    clf_dir: "{motor_imagery_skill_dir}/clf/sub_{id}"
+    n_components: 6
+    ae_paths:
+      one_epoch: "{ae_dir}/unsupervised_model_parameters_one_epoch.pt"
+      full:      "{ae_dir}/ae_epoch_200.pt"
+    clf_paths:
+      best_model: "{clf_dir}/best_model_{n_components}.pkl"
+      pca2d:      "{clf_dir}/pca2D_reducer.pkl"
+      umap2d:     "{clf_dir}/umap2D_reducer.pkl"
+      pca3d:      "{clf_dir}/pca3D_reducer.pkl"
+      umap3d:     "{clf_dir}/umap3D_reducer.pkl"
+    cache_dir: "./cache/sub_{id}"
+    figures:
+      base:         "./Figures/sub_{id}"
+      window10:     "./Figures/sub_{id}/10_day_window"
+      centers:      "./Figures/sub_{id}/centers"
+      trial_window: "./Figures/sub_{id}/trial_window"
+
+  - id: "206"
+    data:
+      sub: "206"
+      eyes_state: "CC"
+      data_dir: "{data_root}"
+      block: [1,2,3]
+      trial_len: 6
+      filter_lim: [1, 40]
+      elec_idxs: [0,1,2,3,4,5,6,7,8,9,10]
+    ae_dir: "{motor_imagery_skill_dir}/AE/sub_{id}"
+    clf_dir: "{motor_imagery_skill_dir}/clf/sub_{id}"
+    n_components: 10
+    ae_paths:
+      one_epoch: "{ae_dir}/unsupervised_model_parameters_one_epoch.pt"
+      full:      "{ae_dir}/ae_epoch_200.pt"
+    clf_paths:
+      best_model: "{clf_dir}/best_model_{n_components}.pkl"
+      pca2d:      "{clf_dir}/pca2D_reducer.pkl"
+      umap2d:     "{clf_dir}/umap2D_reducer.pkl"
+      pca3d:      "{clf_dir}/pca3D_reducer.pkl"
+      umap3d:     "{clf_dir}/umap3D_reducer.pkl"
+    cache_dir: "./cache/sub_{id}"
+    figures:
+      base:         "./Figures/sub_{id}"
+      window10:     "./Figures/sub_{id}/10_day_window"
+      centers:      "./Figures/sub_{id}/centers"
+      trial_window: "./Figures/sub_{id}/trial_window"
