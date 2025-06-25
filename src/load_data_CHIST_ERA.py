@@ -1,24 +1,22 @@
 import os
 import numpy as np
 import mne
-import scipy
-# from properties import sub201_properties as props
-from properties import sub205_properties as props
-# from properties import sub206_properties as props
-
+import scipy.io
 from utils import eegFilters
 
 
 class Chist_Era_data_extractor:
 
-    def __init__(self):
-        self.sub = props['sub']
-        self.eyes_state = props['eyes_state']
-        self.data_dir = props['data_dir']
-        self.full_path = self.data_dir + 'sub' + self.sub + '/RA' + self.eyes_state
-        self.block = props['block']
-        self.trial_len = props['trial_len']
-        self.days = self.get_all_days()
+    def __init__(self, config):
+        self.sub = config['sub']
+        self.eyes_state = config['eyes_state']
+        self.data_dir = config['data_dir']
+        self.block = config['block']
+        self.trial_len = config['trial_len']
+        self.full_path = os.path.join(self.data_dir, f"sub{self.sub}", f"RA{self.eyes_state}")
+        self.filter_lim = config['filter_lim']
+        self.elec_idxs = config['elec_idxs']
+        self.days = self._get_all_days()
         self.EEG_dict = None
         self.paramRA = []
         self.dataOrgVR = []
@@ -31,20 +29,20 @@ class Chist_Era_data_extractor:
 
         return np.unique(days)
 
-    def createMontage(self, chanLabels):
-        """
-        Creates standard 10-20 location montage for given channel set
-        """
-        montageGeneral = mne.channels.make_standard_montage('standard_1020')
-        locationDict = montageGeneral.get_positions()
-        locationDict = locationDict['ch_pos']
-        montageDict = {}
+    # def createMontage(self, chanLabels):
+    #     """
+    #     Creates standard 10-20 location montage for given channel set
+    #     """
+    #     montageGeneral = mne.channels.make_standard_montage('standard_1020')
+    #     locationDict = montageGeneral.get_positions()
+    #     locationDict = locationDict['ch_pos']
+    #     montageDict = {}
 
-        for elec_i in chanLabels:
-            montageDict[elec_i] = locationDict[elec_i]
+    #     for elec_i in chanLabels:
+    #         montageDict[elec_i] = locationDict[elec_i]
 
-        montage = mne.channels.make_dig_montage(montageDict)
-        return montage
+    #     montage = mne.channels.make_dig_montage(montageDict)
+    #     return montage
 
     # def merge_session_blocks(self, eegDictList):
     #     """
@@ -220,8 +218,8 @@ class Chist_Era_data_extractor:
                     continue
 
                 # Filter the data
-                day_data['EEG'] = eegFilters(day_data['EEG'], day_data['fs'], props['filter_lim'])
-                day_data['EEG'] = day_data['EEG'][props['elec_idxs'], :]
+                day_data['EEG'] = eegFilters(day_data['EEG'], day_data['fs'], self.filter_lim)
+                day_data['EEG'] = day_data['EEG'][[self.elec_idxs], :]
 
                 # Segment the data
                 all_sessions_EEG.append(self.segment_EEG(day_data, printFlag=1))

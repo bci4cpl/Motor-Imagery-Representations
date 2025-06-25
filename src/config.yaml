@@ -1,6 +1,19 @@
 # Shared base paths to eliminate redundancy
 motor_imagery_skill_dir: "D:/Niv/Motor imagery skill/weights"
 data_root: "d:/Niv/Data"
+# Autoencoder architecture parameters (same for all subjects)
+ae_params:
+  encoder_pad: [1, 1, 1]
+  decoder_pad: [1, 1, 1, 0, 1, 0]
+  latent_sz: 1120
+
+# Training hyperparameters (same for all subjects)
+training_params:
+  device: "cpu"
+  ae_lrn_rt: 3e-4
+  n_epochs: 1
+  btch_sz: 8
+  cnvl_filters: [8, 16, 32]
 
 subjects:
   - id: "201"
