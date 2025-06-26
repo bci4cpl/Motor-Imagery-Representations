@@ -1,6 +1,7 @@
 # Shared base paths to eliminate redundancy
 motor_imagery_skill_dir: "D:/Niv/Motor imagery skill/weights"
 data_root: "d:/Niv/Data"
+
 # Autoencoder architecture parameters (same for all subjects)
 ae_params:
   encoder_pad: [1, 1, 1]
@@ -15,6 +16,11 @@ training_params:
   btch_sz: 8
   cnvl_filters: [8, 16, 32]
 
+# Global pipeline settings
+n_components: [2, 4, 6, 8, 10]
+seed: 42
+mode: "unsupervised"
+
 subjects:
   - id: "201"
     data:
@@ -25,24 +31,34 @@ subjects:
       trial_len: 6
       filter_lim: [1, 40]
       elec_idxs: [0,1,2,3,4,5,6,7,8,9,10]
+
     ae_dir: "{motor_imagery_skill_dir}/AE/sub_{id}"
     clf_dir: "{motor_imagery_skill_dir}/clf/sub_{id}"
     n_components: 6
+
     ae_paths:
       one_epoch: "{ae_dir}/unsupervised_model_parameters_one_epoch.pt"
       full:      "{ae_dir}/ae_epoch_200.pt"
+
     clf_paths:
       best_model: "{clf_dir}/best_model_{n_components}.pkl"
       pca2d:      "{clf_dir}/pca2D_reducer.pkl"
       umap2d:     "{clf_dir}/umap2D_reducer.pkl"
       pca3d:      "{clf_dir}/pca3D_reducer.pkl"
       umap3d:     "{clf_dir}/umap3D_reducer.pkl"
+
     cache_dir: "./cache/sub_{id}"
     figures:
       base:         "./Figures/sub_{id}"
       window10:     "./Figures/sub_{id}/10_day_window"
       centers:      "./Figures/sub_{id}/centers"
       trial_window: "./Figures/sub_{id}/trial_window"
+
+    train_test_days:
+      train: [0, 30]
+      test:  [30, 133]
+
+
 
   - id: "205"
     data:
@@ -53,24 +69,34 @@ subjects:
       trial_len: 6
       filter_lim: [1, 40]
       elec_idxs: [0,1,2,3,4,5,6,7,8,9,10]
+
     ae_dir: "{motor_imagery_skill_dir}/AE/sub_{id}"
     clf_dir: "{motor_imagery_skill_dir}/clf/sub_{id}"
     n_components: 6
+
     ae_paths:
-      one_epoch: "{ae_dir}/unsupervised_model_parameters_one_epoch.pt"
-      full:      "{ae_dir}/ae_epoch_200.pt"
+      20_epoch: "{ae_dir}/ae_epoch_20.pt"
+      full:      "{ae_dir}/ae_epoch_40.pt"
+
     clf_paths:
       best_model: "{clf_dir}/best_model_{n_components}.pkl"
       pca2d:      "{clf_dir}/pca2D_reducer.pkl"
       umap2d:     "{clf_dir}/umap2D_reducer.pkl"
       pca3d:      "{clf_dir}/pca3D_reducer.pkl"
       umap3d:     "{clf_dir}/umap3D_reducer.pkl"
+
     cache_dir: "./cache/sub_{id}"
     figures:
       base:         "./Figures/sub_{id}"
       window10:     "./Figures/sub_{id}/10_day_window"
       centers:      "./Figures/sub_{id}/centers"
       trial_window: "./Figures/sub_{id}/trial_window"
+
+    train_test_days:
+      train: [0, 3]
+      test:  [3, 8]
+
+
 
   - id: "206"
     data:
@@ -81,21 +107,29 @@ subjects:
       trial_len: 6
       filter_lim: [1, 40]
       elec_idxs: [0,1,2,3,4,5,6,7,8,9,10]
+
     ae_dir: "{motor_imagery_skill_dir}/AE/sub_{id}"
     clf_dir: "{motor_imagery_skill_dir}/clf/sub_{id}"
     n_components: 10
+
     ae_paths:
-      one_epoch: "{ae_dir}/unsupervised_model_parameters_one_epoch.pt"
-      full:      "{ae_dir}/ae_epoch_200.pt"
+      20_epoch: "{ae_dir}/ae_epoch_20.pt"
+      full:      "{ae_dir}/ae_epoch_40.pt"
+
     clf_paths:
       best_model: "{clf_dir}/best_model_{n_components}.pkl"
       pca2d:      "{clf_dir}/pca2D_reducer.pkl"
       umap2d:     "{clf_dir}/umap2D_reducer.pkl"
       pca3d:      "{clf_dir}/pca3D_reducer.pkl"
       umap3d:     "{clf_dir}/umap3D_reducer.pkl"
+
     cache_dir: "./cache/sub_{id}"
     figures:
       base:         "./Figures/sub_{id}"
       window10:     "./Figures/sub_{id}/10_day_window"
       centers:      "./Figures/sub_{id}/centers"
       trial_window: "./Figures/sub_{id}/trial_window"
+
+    train_test_days:
+      train: [0, 3]
+      test:  [3, 9]
