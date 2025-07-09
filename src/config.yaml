@@ -10,19 +10,20 @@ ae_params:
 
 # Training hyperparameters (same for all subjects)
 training_params:
-  device: "cpu"
+  device: "cpu" # 'cuda'
   ae_lrn_rt: 3e-4
-  n_epochs: 1
   btch_sz: 8
   cnvl_filters: [8, 16, 32]
 
 # Global pipeline settings
 n_components: [2, 4, 6, 8, 10]
 seed: 42
-mode: "unsupervised"
+AE_mode: "unsupervised"
+mode: "test"
 
 subjects:
   - id: "201"
+    best_components: 6
     data:
       sub: "201"
       eyes_state: "CC"
@@ -34,14 +35,17 @@ subjects:
 
     ae_dir: "{motor_imagery_skill_dir}/AE/sub_{id}"
     clf_dir: "{motor_imagery_skill_dir}/clf/sub_{id}"
-    n_components: 6
+
+    ae_train_params:
+      n_epochs: 1
+      save_every: 1
 
     ae_paths:
       one_epoch: "{ae_dir}/unsupervised_model_parameters_one_epoch.pt"
-      full:      "{ae_dir}/ae_epoch_200.pt"
+      full:      "{ae_dir}/ae_epoch_20.pt"
 
     clf_paths:
-      best_model: "{clf_dir}/best_model_{n_components}.pkl"
+      best_model: "{clf_dir}/best_model_{best_components}.pkl"
       pca2d:      "{clf_dir}/pca2D_reducer.pkl"
       umap2d:     "{clf_dir}/umap2D_reducer.pkl"
       pca3d:      "{clf_dir}/pca3D_reducer.pkl"
@@ -61,6 +65,7 @@ subjects:
 
 
   - id: "205"
+    best_components: 6
     data:
       sub: "205"
       eyes_state: "CC"
@@ -72,14 +77,17 @@ subjects:
 
     ae_dir: "{motor_imagery_skill_dir}/AE/sub_{id}"
     clf_dir: "{motor_imagery_skill_dir}/clf/sub_{id}"
-    n_components: 6
+
+    ae_train_params:
+      n_epochs: 200
+      save_every: 20
 
     ae_paths:
       20_epoch: "{ae_dir}/ae_epoch_20.pt"
       full:      "{ae_dir}/ae_epoch_40.pt"
 
     clf_paths:
-      best_model: "{clf_dir}/best_model_{n_components}.pkl"
+      best_model: "{clf_dir}/best_model_{best_components}.pkl"
       pca2d:      "{clf_dir}/pca2D_reducer.pkl"
       umap2d:     "{clf_dir}/umap2D_reducer.pkl"
       pca3d:      "{clf_dir}/pca3D_reducer.pkl"
@@ -99,6 +107,7 @@ subjects:
 
 
   - id: "206"
+    best_components: 10
     data:
       sub: "206"
       eyes_state: "CC"
@@ -110,14 +119,18 @@ subjects:
 
     ae_dir: "{motor_imagery_skill_dir}/AE/sub_{id}"
     clf_dir: "{motor_imagery_skill_dir}/clf/sub_{id}"
-    n_components: 10
+
+    ae_train_params:
+      n_epochs: 200
+      save_every: 20
+
 
     ae_paths:
       20_epoch: "{ae_dir}/ae_epoch_20.pt"
       full:      "{ae_dir}/ae_epoch_40.pt"
 
     clf_paths:
-      best_model: "{clf_dir}/best_model_{n_components}.pkl"
+      best_model: "{clf_dir}/best_model_{best_components}.pkl"
       pca2d:      "{clf_dir}/pca2D_reducer.pkl"
       umap2d:     "{clf_dir}/umap2D_reducer.pkl"
       pca3d:      "{clf_dir}/pca3D_reducer.pkl"
