@@ -3,7 +3,7 @@ from properties import hyper_params as params
 from properties import result_params
 from utils import EEGDataSet_signal_by_day
 from torch.utils.data import DataLoader
-from torch import device
+from torch import device, cuda
 import torch
 import os
 import numpy as np
@@ -18,10 +18,11 @@ class Denoiser():
         self.mode = mode
         # self.logger = TensorBoardLogger('../tb_logs', name='EEG_Logger')
         # device settings
-        self.proccessor = params['device']
-        self.device = device(self.proccessor)
-        self.accelerator = self.proccessor if self.proccessor == 'cpu' else 'gpu'
-        self.devices = 1 if self.proccessor == 'cpu' else -1
+        pref = model_adjustments['device']    # e.g. "cuda" or "cpu"
+        if pref == 'cuda' and torch.cuda.is_available():
+            self.device = torch.device('cuda')
+        else:
+            self.device = torch.device('cpu')
 
 
         # Initialize the model with parameters extracted from test_dataset
@@ -34,8 +35,10 @@ class Denoiser():
         n_task_labels = dataset.n_task_labels
 
         self.model = convolution_AE(n_channels, n_days_labels, n_task_labels, self.model_adjustments,
-                                    params['ae_lrn_rt'], filters_n=params['cnvl_filters'], mode=self.mode)
+                                    float(self.model_adjustments['ae_lrn_rt']), filters_n=self.model_adjustments['cnvl_filters'], mode=self.mode)
         self.model.to(self.device)
+        print(">>> Model parameters now on:", next(self.model.parameters()).device)
+
 
     # Training using pytorch lightingg
     # def fit(self, train_dataset):
@@ -53,7 +56,7 @@ class Denoiser():
     #     trainer_2.fit(self.model, train_dataloaders=signal_data_loader)
 
 
-    def train_and_save(self, dataset, n_epochs=50, save_every=5, save_dir="AE/"):
+    def train_and_save(self, dataset, n_epochs=50, save_every=5, save_dir="AE/", plot=False):
         if not os.path.exists(save_dir):
             os.makedirs(save_dir)
 
@@ -62,14 +65,15 @@ class Denoiser():
         n_task_labels = dataset.n_task_labels
 
         self.model = convolution_AE(dataset.n_channels, n_days_labels, n_task_labels, self.model_adjustments,
-                                    params['ae_lrn_rt'], filters_n=params['cnvl_filters'], mode=self.mode)
+                                    self.model_adjustments['ae_lrn_rt'], filters_n=self.model_adjustments['cnvl_filters'], mode=self.mode)
         self.model.to(self.device)
 
         self.model.train()
-        optimizer = torch.optim.Adam(self.model.parameters(), lr=params['ae_lrn_rt'])
+        lr = float(self.model_adjustments['ae_lrn_rt'])
+        optimizer = torch.optim.Adam(self.model.parameters(), lr=lr)
         loss_fn = torch.nn.MSELoss()
 
-        data_loader = DataLoader(dataset=dataset, batch_size=params['btch_sz'], shuffle=True, num_workers=0)
+        data_loader = DataLoader(dataset=dataset, batch_size=self.model_adjustments['btch_sz'], shuffle=True, num_workers=0)
 
         train_losses = []
 
@@ -98,14 +102,15 @@ class Denoiser():
                 print(f"Saved model checkpoint to {save_path}")
 
         # Plot training loss curve
-        plt.figure(figsize=(8, 4))
-        plt.plot(range(1, n_epochs + 1), train_losses, marker='o')
-        plt.title("Training Reconstruction Loss over Epochs")
-        plt.xlabel("Epoch")
-        plt.ylabel("Loss (MSE)")
-        plt.grid(True)
-        plt.tight_layout()
-        plt.show()
+        if plot:
+            plt.figure(figsize=(8, 4))
+            plt.plot(range(1, n_epochs + 1), train_losses, marker='o')
+            plt.title("Training Reconstruction Loss over Epochs")
+            plt.xlabel("Epoch")
+            plt.ylabel("Loss (MSE)")
+            plt.grid(True)
+            plt.tight_layout()
+            plt.show()
 
 
 
@@ -127,7 +132,7 @@ class Denoiser():
         model_dict = self.model.state_dict()
 
         # Filter out unnecessary keys
-        #
+        
         filtered_dict = {}
         for k, v in checkpoint.items():
             if k in model_dict:
