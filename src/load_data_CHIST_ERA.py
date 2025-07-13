@@ -16,7 +16,7 @@ class Chist_Era_data_extractor:
         self.full_path = os.path.join(self.data_dir, f"sub{self.sub}", f"RA{self.eyes_state}")
         self.filter_lim = config['filter_lim']
         self.elec_idxs = config['elec_idxs']
-        self.days = self._get_all_days()
+        self.days = self.get_all_days()
         self.EEG_dict = None
         self.paramRA = []
         self.dataOrgVR = []
@@ -219,10 +219,10 @@ class Chist_Era_data_extractor:
 
                 # Filter the data
                 day_data['EEG'] = eegFilters(day_data['EEG'], day_data['fs'], self.filter_lim)
-                day_data['EEG'] = day_data['EEG'][[self.elec_idxs], :]
+                day_data['EEG'] = day_data['EEG'][self.elec_idxs, :]
 
                 # Segment the data
-                all_sessions_EEG.append(self.segment_EEG(day_data, printFlag=1))
+                all_sessions_EEG.append(self.segment_EEG(day_data, printFlag=0))
 
                 # for 205, MI 154/240 = 64% and Idle 212/240  = 88%
             # Stack block of same day
