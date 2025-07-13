@@ -475,7 +475,6 @@ def grid_search_alternate_csp(signal, labels,
 
     # for sub206 
     # n=10 was the optimal choice
-    best_n = 10
     
 
 
