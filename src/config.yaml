@@ -1,5 +1,5 @@
 # Shared base paths to eliminate redundancy
-motor_imagery_skill_dir: "D:/Niv/Motor imagery skill/weights"
+motor_imagery_skill_dir: "D:/Niv/Niv_github/Motor-Imagery-Representations/src/weights"
 data_root: "d:/Niv/Data"
 
 # Autoencoder architecture parameters (same for all subjects)
@@ -19,7 +19,7 @@ training_params:
 n_components: [2, 4, 6, 8, 10]
 seed: 42
 AE_mode: "unsupervised"
-mode: "test"
+mode: "train"
 
 subjects:
   - id: "201"
@@ -34,15 +34,15 @@ subjects:
       elec_idxs: [0,1,2,3,4,5,6,7,8,9,10]
 
     ae_dir: "{motor_imagery_skill_dir}/AE/sub_{id}"
-    clf_dir: "{motor_imagery_skill_dir}/clf/sub_{id}"
+    clf_dir: "{motor_imagery_skill_dir}/clf/sub_{id}/new"
 
     ae_train_params:
       n_epochs: 1
       save_every: 1
 
-    ae_paths:
-      one_epoch: "{ae_dir}/unsupervised_model_parameters_one_epoch.pt"
-      full:      "{ae_dir}/ae_epoch_20.pt"
+    ae_paths: #change here to the specific model
+      best_epoch: "{ae_dir}/unsupervised_model_parameters_one_epoch.pt"
+      alternative_epoch: "{ae_dir}/ae_epoch_20.pt"
 
     clf_paths:
       best_model: "{clf_dir}/best_model_{best_components}.pkl"
@@ -76,15 +76,15 @@ subjects:
       elec_idxs: [0,1,2,3,4,5,6,7,8,9,10]
 
     ae_dir: "{motor_imagery_skill_dir}/AE/sub_{id}"
-    clf_dir: "{motor_imagery_skill_dir}/clf/sub_{id}"
+    clf_dir: "{motor_imagery_skill_dir}/clf/sub_{id}/new"
 
     ae_train_params:
       n_epochs: 200
       save_every: 20
 
-    ae_paths:
-      20_epoch: "{ae_dir}/ae_epoch_20.pt"
-      full:      "{ae_dir}/ae_epoch_40.pt"
+    ae_paths: #change here to the specific model
+      best_epoch: "{ae_dir}/ae_epoch_20.pt"
+      alternative_epoch: "{ae_dir}/ae_epoch_40.pt"
 
     clf_paths:
       best_model: "{clf_dir}/best_model_{best_components}.pkl"
@@ -118,16 +118,16 @@ subjects:
       elec_idxs: [0,1,2,3,4,5,6,7,8,9,10]
 
     ae_dir: "{motor_imagery_skill_dir}/AE/sub_{id}"
-    clf_dir: "{motor_imagery_skill_dir}/clf/sub_{id}"
+    clf_dir: "{motor_imagery_skill_dir}/clf/sub_{id}/new"
 
     ae_train_params:
       n_epochs: 200
       save_every: 20
 
 
-    ae_paths:
-      20_epoch: "{ae_dir}/ae_epoch_20.pt"
-      full:      "{ae_dir}/ae_epoch_40.pt"
+    ae_paths: #change here to the specific model
+      best_epoch: "{ae_dir}/ae_epoch_20.pt"
+      alternative_epoch: "{ae_dir}/ae_epoch_40.pt"
 
     clf_paths:
       best_model: "{clf_dir}/best_model_{best_components}.pkl"
