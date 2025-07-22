@@ -17,7 +17,6 @@ def main():
     n_components = cfg['n_components']
     AE_mode      = cfg['AE_mode']   # controls AE train vs inference
     mode         = cfg['mode']      # controls CSP-LDA train vs test
-    cache_dir    = subj_cfg['cache_dir'].format(**env)
 
     utils.set_seed(seed)
 
@@ -30,13 +29,15 @@ def main():
         subj_cfg['data']['data_dir']       = subj_cfg['data']['data_dir'].format(**env) #"{data_root}".format(data_root=env['data_root'])
         subj_cfg['ae_dir']                 = subj_cfg['ae_dir'].format(**env)
         subj_cfg['clf_dir']                = subj_cfg['clf_dir'].format(**env)
-        subj_cfg['cache_dir']              = subj_cfg['cache_dir'].format(**env)
         subj_cfg['ae_paths']['best_epoch'] = subj_cfg['ae_paths']['best_epoch'].format(**env)
+
         for section in ['ae_paths','figures']:
             subj_cfg[section] = {k: v.format(**env) for k,v in subj_cfg[section].items()}
 
         for key, template in subj_cfg['clf_paths'].items():
             subj_cfg['clf_paths'][key] = template.format(**env)
+
+        cache_dir    = subj_cfg['cache_dir'].format(**env)
 
         # Subject‑specific day splits
         start_train, end_train = subj_cfg['train_test_days']['train']
@@ -82,7 +83,9 @@ def main():
                 )
             
         for key, template in subj_cfg['clf_paths'].items():
+        for key, template in subj_cfg['clf_paths'].items():
             subj_cfg['clf_paths'][key] = template.format(**env)
+
         clf_loaded = joblib.load(subj_cfg['clf_paths']['best_model'])
 
         # 4) Load projection models into variables
@@ -154,8 +157,8 @@ def main():
                 "eigen_vectors":eigen_vecs,
                 "auc_scores":   auc_scores
             })
-        for name, var in to_save.items():
-            joblib.dump(var, os.path.join(cache_dir, f"{name}.pkl"))
+        # for name, var in to_save.items():
+        #     joblib.dump(var, os.path.join(cache_dir, f"{name}.pkl"))
 
         print(f"✅ Subject {subj_cfg['id']} complete — data cached in '{cache_dir}'")
 
