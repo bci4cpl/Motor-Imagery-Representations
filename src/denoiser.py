@@ -38,23 +38,6 @@ class Denoiser():
         self.model.to(self.device)
         print(">>> Model parameters now on:", next(self.model.parameters()).device)
 
-
-    # Training using pytorch lightingg
-    # def fit(self, train_dataset):
-    #     n_days_labels = train_dataset.n_days_labels
-    #     n_task_labels = train_dataset.n_task_labels
-
-    #     signal_data_loader = DataLoader(dataset=train_dataset, batch_size=params['btch_sz'], shuffle=True,
-    #                                     num_workers=0)
-    #     self.model = convolution_AE(train_dataset.n_channels, n_days_labels, n_task_labels, self.model_adjustments,
-    #                                 params['ae_lrn_rt'], filters_n=params['cnvl_filters'], mode=self.mode)
-    #     self.model.to(self.device)
-
-    #     trainer_2 = pl.Trainer(max_epochs=params['n_epochs'], logger=self.logger, accelerator=self.accelerator,
-    #                            devices=self.devices)
-    #     trainer_2.fit(self.model, train_dataloaders=signal_data_loader)
-
-
     def train_and_save(self, dataset, n_epochs=50, save_every=5, save_dir="AE/", plot=False):
         if not os.path.exists(save_dir):
             os.makedirs(save_dir)
