@@ -19,7 +19,7 @@ training_params:
 n_components: [2, 4, 6, 8, 10]
 seed: 42
 AE_mode: "unsupervised"
-mode: "train"
+mode: "test" # if change to train, please create a new folder for the saved files and change clf_dir and ae_dir to ./new
 
 subjects:
   - id: "201"
@@ -34,7 +34,7 @@ subjects:
       elec_idxs: [0,1,2,3,4,5,6,7,8,9,10]
 
     ae_dir: "{motor_imagery_skill_dir}/AE/sub_{id}"
-    clf_dir: "{motor_imagery_skill_dir}/clf/sub_{id}/new"
+    clf_dir: "{motor_imagery_skill_dir}/clf/sub_{id}"
 
     ae_train_params:
       n_epochs: 1
@@ -76,7 +76,7 @@ subjects:
       elec_idxs: [0,1,2,3,4,5,6,7,8,9,10]
 
     ae_dir: "{motor_imagery_skill_dir}/AE/sub_{id}"
-    clf_dir: "{motor_imagery_skill_dir}/clf/sub_{id}/new"
+    clf_dir: "{motor_imagery_skill_dir}/clf/sub_{id}"
 
     ae_train_params:
       n_epochs: 200
@@ -118,7 +118,7 @@ subjects:
       elec_idxs: [0,1,2,3,4,5,6,7,8,9,10]
 
     ae_dir: "{motor_imagery_skill_dir}/AE/sub_{id}"
-    clf_dir: "{motor_imagery_skill_dir}/clf/sub_{id}/new"
+    clf_dir: "{motor_imagery_skill_dir}/clf/sub_{id}"
 
     ae_train_params:
       n_epochs: 200
