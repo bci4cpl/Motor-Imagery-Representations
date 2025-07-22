@@ -10,7 +10,6 @@ import numpy as np
 import matplotlib.pyplot as plt
 
 
-
 class Denoiser():
     def __init__(self, model_adjustments,mode, test_dataset):
         self.model = None
@@ -18,12 +17,12 @@ class Denoiser():
         self.mode = mode
         # self.logger = TensorBoardLogger('../tb_logs', name='EEG_Logger')
         # device settings
-        pref = model_adjustments['device']    # e.g. "cuda" or "cpu"
+        pref = model_adjustments['device']
+        self.model_adjustments['ae_lrn_rt'] = float(self.model_adjustments['ae_lrn_rt'])    # e.g. "cuda" or "cpu"
         if pref == 'cuda' and torch.cuda.is_available():
             self.device = torch.device('cuda')
         else:
             self.device = torch.device('cpu')
-
 
         # Initialize the model with parameters extracted from test_dataset
         self.initialize_model(test_dataset)
@@ -35,7 +34,7 @@ class Denoiser():
         n_task_labels = dataset.n_task_labels
 
         self.model = convolution_AE(n_channels, n_days_labels, n_task_labels, self.model_adjustments,
-                                    float(self.model_adjustments['ae_lrn_rt']), filters_n=self.model_adjustments['cnvl_filters'], mode=self.mode)
+                                    self.model_adjustments['ae_lrn_rt'], filters_n=self.model_adjustments['cnvl_filters'], mode=self.mode)
         self.model.to(self.device)
         print(">>> Model parameters now on:", next(self.model.parameters()).device)
 
@@ -64,13 +63,9 @@ class Denoiser():
         n_days_labels = dataset.n_days_labels
         n_task_labels = dataset.n_task_labels
 
-        self.model = convolution_AE(dataset.n_channels, n_days_labels, n_task_labels, self.model_adjustments,
-                                    self.model_adjustments['ae_lrn_rt'], filters_n=self.model_adjustments['cnvl_filters'], mode=self.mode)
-        self.model.to(self.device)
-
         self.model.train()
-        lr = float(self.model_adjustments['ae_lrn_rt'])
-        optimizer = torch.optim.Adam(self.model.parameters(), lr=lr)
+        lr = self.model_adjustments['ae_lrn_rt']
+        optimizer = torch.optim.Adam(self.model.parameters(),lr=lr )
         loss_fn = torch.nn.MSELoss()
 
         data_loader = DataLoader(dataset=dataset, batch_size=self.model_adjustments['btch_sz'], shuffle=True, num_workers=0)
@@ -127,12 +122,11 @@ class Denoiser():
         checkpoint = torch.load(weights_path, map_location=self.device)
         # self.model.load_state_dict(checkpoint)
 
-
         # Extracting the default iniziliatezed random weights
         model_dict = self.model.state_dict()
 
         # Filter out unnecessary keys
-        
+    
         filtered_dict = {}
         for k, v in checkpoint.items():
             if k in model_dict:
