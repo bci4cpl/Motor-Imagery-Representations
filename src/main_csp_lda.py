@@ -83,9 +83,8 @@ def main():
                 )
             
         for key, template in subj_cfg['clf_paths'].items():
-        for key, template in subj_cfg['clf_paths'].items():
             subj_cfg['clf_paths'][key] = template.format(**env)
-
+            
         clf_loaded = joblib.load(subj_cfg['clf_paths']['best_model'])
 
         # 4) Load projection models into variables
@@ -164,14 +163,3 @@ def main():
 
 if __name__ == '__main__':
     main()
-
-# legacy
-#Using DWT features
-# dwt = DWT(denoised_signal)
-# dwt_features,_ = dwt.get_dwt_features() # trial,electrode,band,feature
-# num_trials, num_electrodes, num_bands, num_features = dwt_features.shape
-# total_num_features = num_electrodes * num_bands * num_features
-# dwt_features_by_trial = dwt_features.reshape(num_trials, total_num_features) # trial,features
-# X_features = np.concatenate((x_csp_features, dwt_features_by_trial), axis=1)
-
-
