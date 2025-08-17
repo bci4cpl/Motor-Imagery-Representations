@@ -3,6 +3,7 @@ import umap
 import os
 import joblib
 import pandas as pd
+import yaml
 
 import itertools
 from itertools import combinations
@@ -1324,6 +1325,37 @@ def anova_cluster_distances(inter_distances, intra_distances_idle, intra_distanc
 
 
 
+def load_config(config_path):
+    """
+    Loads a YAML configuration file.
+    Args:
+        config_path (str): Path to the config.yaml file.
+    Returns:
+        dict: Configuration parameters.
+    """
+    with open(config_path, 'r') as f:
+        config = yaml.safe_load(f)
+    return config
+
+
+def setup_spaces(subject_id, X_csp_features_scaled, X_csp_features_scaled_2d,
+                 X_pca_features_2D, X_umap_features_2D, X_pca_features_3D, X_umap_features_3D):
+    """Return spaces and dim_dict based on subject."""
+    spaces = {
+        'CSP-2D': X_csp_features_scaled_2d,
+        'PCA-2D': X_pca_features_2D,
+        'UMAP-2D': X_umap_features_2D,
+        'PCA-3D': X_pca_features_3D,
+        'UMAP-3D': X_umap_features_3D,
+        'CSP-full': X_csp_features_scaled
+    }
+    if subject_id in ['201', '205']:
+        dim_dict = {'CSP-full': 6, 'UMAP-3D': 3, 'PCA-3D': 3, 'UMAP-2D': 2, 'PCA-2D': 2, 'CSP-2D': 2}
+    elif subject_id == '206':
+        dim_dict = {'CSP-full': 10, 'UMAP-3D': 3, 'PCA-3D': 3, 'UMAP-2D': 2, 'PCA-2D': 2, 'CSP-2D': 2}
+    else:
+        dim_dict = {'CSP-full': X_csp_features_scaled.shape[1], 'UMAP-3D': 3, 'PCA-3D': 3, 'UMAP-2D': 2, 'PCA-2D': 2, 'CSP-2D': 2}
+    return spaces, dim_dict
 
 
 
