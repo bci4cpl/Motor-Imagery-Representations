@@ -20,28 +20,6 @@ seed: 42
 AE_mode: "unsupervised"
 mode: "test" # if change to train, please create a new folder for the saved files and change clf_dir and ae_dir to ./new
 
-# --- Experiment control toggles ---
-experiment_sub : "201"
-run_cluster_separation: true
-run_variance_smoothing: false
-run_delta_matrix: false
-run_sliding_window: true
-run_track_centers: true
-run_trial_window: true
-
-# --- Analysis parameters ---
-start_test_day: 1
-end_test_day: 100
-start_day: 1
-window_size: 10
-overlap_size: 5
-trial_window_size: 10
-metric: "AUC"
-
-# --- Feature space overrides (optional, usually handled in code) ---
-spaces: {}    # Leave empty to use defaults or specify custom mapping
-dim_dict: {}  # Leave empty to use defaults or specify custom mapping
-
 
 subjects:
   - id: "201"
