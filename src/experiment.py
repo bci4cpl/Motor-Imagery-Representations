@@ -5,75 +5,96 @@ import numpy as np
 from loader_var import load_cached_variables
 
 def main():
-    # Load config
-    config = utils.load_config('config.yaml')
+    # ─── 1) Load all cached variables ──────────────────────────────────────────
 
-    # Select subject block by experiment_sub
-    subject_id = config['experiment_sub']
-    subject_block = next(sub for sub in config['subjects'] if sub['id'] == subject_id)
+    #C:\Users\owner\Desktop\Niv\Motor imagery skill\cache
 
-    # Load cached variables
-    vars = load_cached_variables(load_path=subject_block['cache_dir'])
+    vars = load_cached_variables(load_path='d:\\Niv\\Motor imagery skill\\cache\\sub_201')
+    # vars = load_cached_variables(load_path='d:\\Niv\\Motor imagery skill\\cache\\sub_205')
+    # vars = load_cached_variables(load_path='d:\\Niv\\Motor imagery skill\\cache\\sub_206')
+
+
     globals().update(vars)
+    
 
-    # Setup feature spaces
-    spaces, dim_dict = utils.setup_spaces(
-        subject_id,
-        X_csp_features_scaled,
-        X_csp_features_scaled_2d,
-        X_pca_features_2D,
-        X_umap_features_2D,
-        X_pca_features_3D,
-        X_umap_features_3D
-    )
+    # ───2) Setup ──────────────────────────────────────────
 
-    # Directories from subject block
-    save_dir = subject_block['figures']['base']
-    save_dir_10_day_window = subject_block['figures'].get('window10', subject_block['figures'].get('base') + '/10_day_window')
-    save_dir_centers = subject_block['figures'].get('centers', subject_block['figures'].get('base') + '/centers')
-    save_dir_trial_window = subject_block['figures']['trial_window']
+
+    save_dir = r"D:/Niv/Motor imagery skill/Figures/sub_201"
+    save_dir_10_day_window = r'D:/Niv/Motor imagery skill/Figures/sub_201/10_day_window'
+    save_dir_centers = r"D:/Niv/Motor imagery skill/Figures/sub_201/centers"
+    save_dir_trial_window = r'D:/Niv/Motor imagery skill/Figures/sub_206/trial_window'
+
+
+    # save_dir = r"D:/Niv/Motor imagery skill/Figures/sub_205"
+    # save_dir_10_day_window = r'D:/Niv/Motor imagery skill/Figures/sub_205/10_day_window'
+    # save_dir_centers = r"D:/Niv/Motor imagery skill/Figures/sub_205/centers"
+    # save_dir_trial_window = r'D:/Niv/Motor imagery skill/Figures/sub_206/trial_window'
+
+
+    # save_dir = r"D:/Niv/Motor imagery skill/Figures/sub_206"
+    # save_dir_10_day_window = r'D:/Niv/Motor imagery skill/Figures/sub_206/10_day_window'
+    # save_dir_centers = r"D:/Niv/Motor imagery skill/Figures/sub_206/centers"
+    # save_dir_trial_window = r'D:/Niv/Motor imagery skill/Figures/sub_206/trial_window'
+    # unique_days = np.unique(days_label)
+
+    spaces = {
+        # 'CSP-6D': X_csp_features_scaled, # for sub 201,205
+        'CSP-2D': X_csp_features_scaled_2d,
+        # "CSP-1D": X_csp_features_scaled_1d,
+        'PCA-2D': X_pca_features_2D,
+        'UMAP-2D': X_umap_features_2D,
+        'PCA-3D': X_pca_features_3D,
+        'UMAP-3D': X_umap_features_3D
+        ,'CSP-10D': X_csp_features_scaled # for sub 206 the full space had 10 Components
+
+    }
+    dim_dict= {'CSP-10D': 10, 'UMAP-3D': 3, 'PCA-3D': 3, 'UMAP-2D':2, 'PCA-2D':2, 'CSP-2D': 2}
+
+
+    # spaces_demo = { "CSP-1D": X_csp_features_scaled_1d}
 
 
     # ─── 3) Cluster‐separation plots ────────────────────────────────────────────
-    # visualizations.plot_auc_vs_cluster_separation(
-    #       X_csp_features_scaled,X_csp_features_scaled_2d,
-    #       y_label, days_label, clf_loaded,
-    #       start_test_day,end_test_day,dim=2,directory=save_dir)
+    visualizations.plot_auc_vs_cluster_separation(
+          X_csp_features_scaled,X_csp_features_scaled_2d,
+          y_label, days_label, clf_loaded,
+          start_test_day,end_test_day,dim=2,directory=save_dir)
 
-    # visualizations.plot_auc_vs_cluster_separation(
-    #     X_csp_features_scaled, X_pca_features_2D,
-    #     y_label, days_label, clf_loaded,
-    #     start_test_day, end_test_day,
-    #     dim=2, reducer='PCA',directory=save_dir
-    # )
+    visualizations.plot_auc_vs_cluster_separation(
+        X_csp_features_scaled, X_pca_features_2D,
+        y_label, days_label, clf_loaded,
+        start_test_day, end_test_day,
+        dim=2, reducer='PCA',directory=save_dir
+    )
 
-    # visualizations.plot_auc_vs_cluster_separation(
-    #     X_csp_features_scaled,X_umap_features_2D,
-    #     y_label, days_label, clf_loaded,
-    #     start_test_day,end_test_day,
-    #     dim=2, reducer='UMAP',directory=save_dir
-    # )
+    visualizations.plot_auc_vs_cluster_separation(
+        X_csp_features_scaled,X_umap_features_2D,
+        y_label, days_label, clf_loaded,
+        start_test_day,end_test_day,
+        dim=2, reducer='UMAP',directory=save_dir
+    )
 
-    # visualizations.plot_auc_vs_cluster_separation(
-    #     X_csp_features_scaled,X_pca_features_3D,
-    #     y_label, days_label, clf_loaded,
-    #     start_test_day,end_test_day,
-    #     dim=3, reducer='PCA',directory=save_dir
-    # )
+    visualizations.plot_auc_vs_cluster_separation(
+        X_csp_features_scaled,X_pca_features_3D,
+        y_label, days_label, clf_loaded,
+        start_test_day,end_test_day,
+        dim=3, reducer='PCA',directory=save_dir
+    )
 
-    # visualizations.plot_auc_vs_cluster_separation(
-    #     X_csp_features_scaled,X_umap_features_3D,
-    #     y_label, days_label, clf_loaded,
-    #     start_test_day,end_test_day,
-    #     dim=3, reducer='UMAP',directory=save_dir
-    # )
+    visualizations.plot_auc_vs_cluster_separation(
+        X_csp_features_scaled,X_umap_features_3D,
+        y_label, days_label, clf_loaded,
+        start_test_day,end_test_day,
+        dim=3, reducer='UMAP',directory=save_dir
+    )
 
-    # visualizations.plot_auc_vs_cluster_separation(
-    #     X_csp_features_scaled,X_csp_features_scaled,
-    #     y_label, days_label, clf_loaded,
-    #     start_test_day,end_test_day,
-    #     directory=save_dir
-    # )
+    visualizations.plot_auc_vs_cluster_separation(
+        X_csp_features_scaled,X_csp_features_scaled,
+        y_label, days_label, clf_loaded,
+        start_test_day,end_test_day,
+        directory=save_dir
+    )
 
     # ─── 4) Variance‐vs‐accuracy smoothing ──────────────────────────────────────
 
