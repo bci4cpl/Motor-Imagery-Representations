@@ -130,46 +130,6 @@ def plot_metric_cluster_scores(metric_scores, start_test_day, end_test_day,reduc
         plt.close()
     plt.close()
 
-# def plot_multiple_day_2D_projection(X_features,y_label,days_labels,start_test_day,end_test_day,reducer,directory, window_size= None):
-
-#     unique_days = np.unique(days_labels)
-#     nrows = 2
-#     ncols = len(unique_days)
-#     fig, axs = plt.subplots(nrows, ncols//nrows, figsize=(15, 5))
-#     x_lim, y_lim = graph_limits_2D(X_features)
-#     silhouette_scores = []
-#     calinski_harabasz_scores = []
-#     davies_bouldin_scores = []
-
-#     for i, day in enumerate(unique_days):
-#         day_mask = (days_labels == day)
-#         X_day = X_features[day_mask]
-#         y_day = y_label[day_mask]
-
-#         # Find row and column indices for the 2D grid of subplots
-#         row = i // (len(unique_days) // 2)
-#         col = i % (len(unique_days) // 2)
-    
-#         # Correct indexing for a 2D array of axes
-#         plot_2d_projection(X_day, y_day, f"Day {start_test_day+i+30} - {reducer}",reducer, ax=axs[row, col], x_limits=x_lim,
-#                                   y_limits=y_lim)
-#         sil_score = silhouette_score(X_day, y_day, metric='euclidean')
-#         silhouette_scores.append(sil_score)
-
-#         ch_score = calinski_harabasz_score(X_day,y_day)
-#         calinski_harabasz_scores.append(ch_score)
-        
-#         db_score = davies_bouldin_score(X_day,y_day)
-#         davies_bouldin_scores.append(db_score)
-
-#     plt.tight_layout()
-#     filename = f'2D_{reducer}_Test_Day_{start_test_day+30}_to_{end_test_day+30} .jpg'
-#     full_path = os.path.join(directory, filename)
-#     plt.savefig(full_path)
-#     plt.close()  # Close the figure after saving
-#     plot_metric_cluster_scores(silhouette_scores, start_test_day, end_test_day, reducer, directory, dim=2, window_size=window_size, metric = "Silhouette")
-#     plot_metric_cluster_scores(calinski_harabasz_scores, start_test_day, end_test_day, reducer, directory,dim=2,window_size=window_size,metric = "Calinski-Harabasz")
-#     plot_metric_cluster_scores(davies_bouldin_scores, start_test_day, end_test_day, reducer, directory,dim=2,window_size=window_size,metric = "Davies-Bouldin")
 def plot_multiple_day_2D_projection(X_features, y_label, days_labels, start_test_day, end_test_day, reducer, directory, window_size=None, sub205=False, sub206=False, show_grid=True, box_off=False):
     unique_days = np.unique(days_labels)
     nrows = 2
