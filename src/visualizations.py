@@ -183,10 +183,8 @@ def plot_multiple_day_2D_projection(X_features, y_label, days_labels, start_test
     calinski_harabasz_scores = []
     davies_bouldin_scores = []
 
-    if reducer == 'PCA':
-        reducer_label = 'PC'
-    else:
-        reducer_label = reducer
+    reducer_label = 'PC' if reducer == 'PCA' else reducer
+
 
     for i, day in enumerate(unique_days):
         day_mask = (days_labels == day)
@@ -332,11 +330,66 @@ def plot_3d_projection(X, y_label, title, ax, reducer, x_limits, y_limits, z_lim
     ax.legend()
     ax.grid(True)
 
-def plot_multiple_day_3D_projection(X_features, y_label, days_labels, start_test_day, end_test_day, reducer, directory, window_size=None, show_grid=True, box_off=False):
+    
+def _rot_z(a):
+    c,s = np.cos(a), np.sin(a)
+    return np.array([[c,-s,0],[s,c,0],[0,0,1]])
+
+def _rot_x(e):
+    c,s = np.cos(e), np.sin(e)
+    return np.array([[1,0,0],[0,c,-s],[0,s,c]])
+
+import numpy as np
+from sklearn.metrics import silhouette_score  # you already import the others
+
+def _rot_z(a):
+    c, s = np.cos(a), np.sin(a)
+    return np.array([[c, -s, 0],
+                     [s,  c, 0],
+                     [0,  0, 1]])
+
+def _rot_x(e):
+    c, s = np.cos(e), np.sin(e)
+    return np.array([[1, 0, 0],
+                     [0, c, -s],
+                     [0, s,  c]])
+
+def best_view_angles(X3, y, elevs=None, azims=None):
+    if elevs is None:
+        elevs = np.deg2rad([10, 20, 30])
+    if azims is None:
+        azims = np.deg2rad(np.arange(-180, 181, 15))
+
+    best_e, best_a, best_score = None, None, -np.inf
+
+    # (Optional) speed-up: uniformly sample if very large
+    if len(X3) > 5000:
+        idx = np.random.choice(len(X3), 5000, replace=False)
+        X3s, ys = X3[idx], y[idx]
+    else:
+        X3s, ys = X3, y
+
+    for e in elevs:
+        Rx = _rot_x(e)
+        for a in azims:
+            R = Rx @ _rot_z(a)
+            XY = (X3s @ R.T)[:, :2]
+            # Silhouette requires at least 2 labels; guard just in case
+            try:
+                sil = silhouette_score(XY, ys, metric='euclidean')
+            except Exception:
+                sil = -np.inf
+            if sil > best_score:
+                best_e, best_a, best_score = e, a, sil
+
+    return np.rad2deg(best_e), np.rad2deg(best_a)
+
+
+def plot_multiple_day_3D_projection(X_features, y_label, days_labels, start_test_day, end_test_day, reducer, directory, window_size=None, sub205=False, sub206=False, show_grid=True, box_off=False, auto_view=False):
 
     unique_days = np.unique(days_labels)
     nrows = 2
-    ncols = len(unique_days) // nrows
+    ncols = math.ceil(len(unique_days) / nrows)   # <-- use ceil so grid has enough slots
     fig = plt.figure(figsize=(15, 10))
 
     # Calculate the global axis limits for all days
@@ -346,6 +399,15 @@ def plot_multiple_day_3D_projection(X_features, y_label, days_labels, start_test
     calinski_harabasz_scores =[]
     davies_bouldin_scores = []
 
+    reducer_label = 'PC' if reducer == 'PCA' else reducer
+    # -------- Auto view selection --------
+    default_view = (20, -60)  # elev, azim fallback
+    global_view = None
+    if auto_view is True or auto_view == 'global':
+        mask = np.isin(days_labels, unique_days)
+        elev_deg, azim_deg = best_view_angles(X_features[mask], y_label[mask])
+        global_view = (elev_deg, azim_deg)
+
     # Iterate over each day
     for i, day in enumerate(unique_days):
         day_mask = (days_labels == day)
@@ -354,22 +416,20 @@ def plot_multiple_day_3D_projection(X_features, y_label, days_labels, start_test
 
         # Create 3D subplot for each day
         row, col = divmod(i, ncols)
-
         ax = fig.add_subplot(nrows, ncols, i + 1, projection='3d')
-
-        # # Plot the 3D projection for the current day
-        # plot_3d_projection(X_day, y_day, f"Day {start_test_day+i+30} - {reducer}", ax, reducer, x_limits=x_lim, y_limits=y_lim,
-        #                    z_limits=z_lim)
-
-        # --- Plot
         ax.scatter(X_day[y_day == 0, 0], X_day[y_day == 0, 1], X_day[y_day == 0, 2],
                    label='Idle', c='blue', marker='o', alpha=0.8)
         ax.scatter(X_day[y_day == 1, 0], X_day[y_day == 1, 1], X_day[y_day == 1, 2],
                    label='MI', c='red', marker='x', alpha=0.8)
 
         # Title: just Day N
-        ax.set_title(f"Day {start_test_day + i + 30}")
+        if sub205 or sub206:
+            day_label = f"Day {day+3}"
+        else:
+            day_label = f"Day {start_test_day + i + 30}"
 
+        ax.set_title(day_label)
+    
         # Limits
         ax.set_xlim(x_lim)
         ax.set_ylim(y_lim)
@@ -377,12 +437,12 @@ def plot_multiple_day_3D_projection(X_features, y_label, days_labels, start_test
 
         # Axis labels: only bottom row for x, leftmost col for y and z
         if row == nrows - 1:
-            ax.set_xlabel(f"{reducer}_1")
+            ax.set_xlabel(f"{reducer_label}_1")
         else:
             ax.set_xlabel("")
         if col == 0:
-            ax.set_ylabel(f"{reducer}_2")
-            ax.set_zlabel(f"{reducer}_3")
+            ax.set_ylabel(f"{reducer_label}_2")
+            ax.set_zlabel(f"{reducer_label}_3")
         else:
             ax.set_ylabel("")
             ax.set_zlabel("")
@@ -400,29 +460,50 @@ def plot_multiple_day_3D_projection(X_features, y_label, days_labels, start_test
         else:
             ax.legend().set_visible(False)
 
-        ax.view_init(elev=20, azim=-60)
-
         # Calculate silhouette score for the current day
         sil_score = silhouette_score(X_day, y_day, metric='euclidean')
+        ch_score = calinski_harabasz_score(X_day, y_day)
+        db_score = davies_bouldin_score(X_day, y_day)
+
         silhouette_scores.append(sil_score)
-
-        ch_score = calinski_harabasz_score(X_day,y_day)
         calinski_harabasz_scores.append(ch_score)
-
-        db_score = davies_bouldin_score(X_day,y_day)
         davies_bouldin_scores.append(db_score)
 
+        
+                # ---- View ----
+        ax.set_box_aspect((1, 1, 1))
+        ax.set_proj_type('ortho')
+        if auto_view == 'per_day':
+            elev_deg, azim_deg = best_view_angles(X_day, y_day)
+            ax.view_init(elev=elev_deg, azim=azim_deg)
+        elif global_view is not None:
+            ax.view_init(*global_view)
+        else:
+            ax.view_init(*default_view)
+        
+        # Label logic
+    if sub205 or sub206:
+        start_test_day = start_test_day + 3
+        end_test_day = end_test_day + 3
+    else:
+        start_test_day = start_test_day + 30
+        end_test_day = end_test_day + 30
 
     plt.tight_layout()
-    filename = f'3D_{reducer}_Test_Day_{start_test_day+30}_to_{end_test_day +30}.jpg'
-    full_path = os.path.join(directory, filename)
+
+    prefix = "3D"
+
+    filename = f'{prefix}_{reducer}_Test_Day_{start_test_day}_to_{end_test_day}.jpg'
+    subdir = os.path.join(directory, prefix)
+    os.makedirs(subdir, exist_ok=True)
+    full_path = os.path.join(subdir, filename)
     plt.savefig(full_path)
     plt.close()  # Close the figure after saving
 
     # Plot silhouette scores
-    plot_metric_cluster_scores(silhouette_scores, start_test_day, end_test_day, reducer, directory,dim=3, window_size=window_size, metric="Silhouette")
-    plot_metric_cluster_scores(calinski_harabasz_scores, start_test_day, end_test_day, reducer, directory,dim=3,window_size=window_size,metric = "Calinski-Harabasz")
-    plot_metric_cluster_scores(davies_bouldin_scores, start_test_day, end_test_day, reducer, directory,dim=3,window_size=window_size,metric = "Davies-Bouldin")
+    plot_metric_cluster_scores(silhouette_scores, start_test_day, end_test_day, reducer, subdir,dim=3, window_size=window_size, metric="Silhouette")
+    plot_metric_cluster_scores(calinski_harabasz_scores, start_test_day, end_test_day, reducer, subdir,dim=3,window_size=window_size,metric = "Calinski-Harabasz")
+    plot_metric_cluster_scores(davies_bouldin_scores, start_test_day, end_test_day, reducer, subdir,dim=3,window_size=window_size,metric = "Davies-Bouldin")
 
 
 def plot_sliding_windows(days_label, y_label, clf, X_csp_scaled, X_csp_2d, X_pca2d, X_umap2d, X_pca3d, X_umap3d, save_dir_win, start_day=1, window_size=10, overlap_size=5):
@@ -467,7 +548,7 @@ def plot_sliding_windows(days_label, y_label, clf, X_csp_scaled, X_csp_2d, X_pca
         day_folder_path = os.path.join(save_dir_win, day_folder_name)
         os.makedirs(day_folder_path, exist_ok=True)
 
-        # 1) 2D projections
+        # # 1) 2D projections
         plot_multiple_day_2D_projection(
             X2d_win, y_win, days_win,
             start_day, end_day, reducer='CSP', directory=day_folder_path,
@@ -490,12 +571,14 @@ def plot_sliding_windows(days_label, y_label, clf, X_csp_scaled, X_csp_2d, X_pca
         plot_multiple_day_3D_projection(
             P3d_win, y_win, days_win,
             start_day, end_day, reducer='PCA', directory=day_folder_path,
-            window_size=window_size
+            window_size=window_size, sub205=True, auto_view='global'
+
         )
         plot_multiple_day_3D_projection(
             U3d_win, y_win, days_win,
             start_day, end_day, reducer='UMAP', directory=day_folder_path,
-            window_size=window_size
+            window_size=window_size, sub205=True, auto_view='global'
+
         )
 
         # 3) Accuracy vs cluster separation
