@@ -97,7 +97,7 @@ def plot_metric_cluster_scores(metric_scores, start_test_day, end_test_day,reduc
     plt.figure(figsize=(10, 6))  # Adjust the figure size as needed
     plt.plot(metric_scores, marker='o', linestyle='-', color='b')  # Line plot with circle markers
 
-    title = f'{dim}D_{reducer} {metric} Scores with Test_Day_{start_test_day+30}_to_{end_test_day+30}'
+    title = f'{dim}D_{reducer} {metric} Scores with Test_Day_{start_test_day}_to_{end_test_day}'
     plt.title(title)
 
     xticks = np.arange(start_test_day, end_test_day)
@@ -107,12 +107,12 @@ def plot_metric_cluster_scores(metric_scores, start_test_day, end_test_day,reduc
         plt.xticks(ticks=positions, labels=xticks)
     except ValueError:
         # fallback: build a matching labels array of the same length as positions
-        fallback_labels = np.arange(start_test_day+30,
-                                    start_test_day +30 + len(metric_scores))
+        fallback_labels = np.arange(start_test_day,
+                                    start_test_day+ len(metric_scores))
         # update title if you want
         plt.title(
             f'{dim}D {reducer} {metric} Scores — '
-            f'Days {start_test_day+30} to {end_test_day+30}'
+            f'Days {start_test_day} to {end_test_day}'
         )
         plt.xticks(ticks=positions, labels=fallback_labels)   
 
@@ -170,7 +170,7 @@ def plot_metric_cluster_scores(metric_scores, start_test_day, end_test_day,reduc
 #     plot_metric_cluster_scores(silhouette_scores, start_test_day, end_test_day, reducer, directory, dim=2, window_size=window_size, metric = "Silhouette")
 #     plot_metric_cluster_scores(calinski_harabasz_scores, start_test_day, end_test_day, reducer, directory,dim=2,window_size=window_size,metric = "Calinski-Harabasz")
 #     plot_metric_cluster_scores(davies_bouldin_scores, start_test_day, end_test_day, reducer, directory,dim=2,window_size=window_size,metric = "Davies-Bouldin")
-def plot_multiple_day_2D_projection(X_features, y_label, days_labels, start_test_day, end_test_day, reducer, directory, window_size=None, sub205=False, show_grid=True, box_off=False):
+def plot_multiple_day_2D_projection(X_features, y_label, days_labels, start_test_day, end_test_day, reducer, directory, window_size=None, sub205=False, sub206=False, show_grid=True, box_off=False):
     unique_days = np.unique(days_labels)
     nrows = 2
     ncols = math.ceil(len(unique_days) / nrows)
@@ -183,43 +183,39 @@ def plot_multiple_day_2D_projection(X_features, y_label, days_labels, start_test
     calinski_harabasz_scores = []
     davies_bouldin_scores = []
 
+    if reducer == 'PCA':
+        reducer_label = 'PC'
+    else:
+        reducer_label = reducer
+
     for i, day in enumerate(unique_days):
         day_mask = (days_labels == day)
         X_day = X_features[day_mask]
         y_day = y_label[day_mask]
 
         # Label logic
-        if sub205:
+        if sub205 or sub206:
             day_label = f"Day {day+3}"
         else:
             day_label = f"Day {start_test_day + i + 30}"
 
-        # Plot projection for the day
-        # plot_2d_projection(
-        #     X_day, y_day,
-        #     title=day_label,
-        #     reducer=reducer,
-        #     ax=axs[i],
-        #     x_limits=x_lim,
-        #     y_limits=y_lim
-        # )
         ax = axs[i]
-        # Scatter plots
         ax.scatter(X_day[y_day == 0, 0], X_day[y_day == 0, 1], label='Idle', c='blue', marker='o', alpha=0.8)
         ax.scatter(X_day[y_day == 1, 0], X_day[y_day == 1, 1], label='MI', c='red', marker='x', alpha=0.8)
         ax.set_title(day_label)
         ax.set_xlim(x_lim)
         ax.set_ylim(y_lim)
+
         # --- Robust axis label logic ---
         row, col = divmod(i, ncols)
         # Only leftmost
         if col == 0:
-            ax.set_ylabel('CSP_2' if reducer == 'CSP' else f'{reducer}_2')
+            ax.set_ylabel('CSP_2' if reducer == 'CSP' else f'{reducer_label}_2')
         else:
             ax.set_ylabel('')
         # Only bottom row
         if row == nrows - 1:
-            ax.set_xlabel('CSP_1' if reducer == 'CSP' else f'{reducer}_1')
+            ax.set_xlabel('CSP_1' if reducer == 'CSP' else f'{reducer_label}_1')
         else:
             ax.set_xlabel('')
         # --- Grid/Box logic ---
@@ -244,22 +240,53 @@ def plot_multiple_day_2D_projection(X_features, y_label, days_labels, start_test
         calinski_harabasz_scores.append(ch_score)
         davies_bouldin_scores.append(db_score)
 
+        # right side text
+        ax.text(
+                0.98, 0.05,              # position (x, y) in axis coordinates
+                f"Sil = {sil_score:.3f}",    # formatted text
+                transform=ax.transAxes,  # make it relative to the axes
+                fontsize=10, style='italic',
+                ha='right', va='bottom', 
+                color='dimgray')
+        
+        # # left side text
+        # ax.text(
+        #         0.02, 0.05,              # position (x, y) in axis coordinates
+        #         f"CH = {ch_score:.3f}",    # formatted text
+        #         transform=ax.transAxes,  # make it relative to the axes
+        #         fontsize=10, style='italic',
+        #         ha='left', va='bottom', 
+        #         color='dimgray')
+
     # Hide any extra/unused subplots
     for j in range(len(unique_days), len(axs)):
         axs[j].axis('off')
-    
-    fig.suptitle(f"{reducer} 2D Feature Space Across Days {start_test_day + 30}–{end_test_day + 30}", fontsize=15)
+
+    # Label logic
+    if sub205 or sub206:
+        start_test_day = start_test_day + 3
+        end_test_day = end_test_day + 3
+    else:
+        start_test_day = start_test_day + 30
+        end_test_day = end_test_day + 30
+        
+    fig.suptitle(f"{reducer} 2D Feature Space Across Days {start_test_day}–{end_test_day}", fontsize=15)
 
     plt.tight_layout()
-    filename = f'2D_{reducer}_Test_Day_{start_test_day + 30}_to_{end_test_day + 30}.jpg'
-    full_path = os.path.join(directory, filename)
+    prefix = "2D"
+    filename = f'{prefix}_{reducer}_Test_Day_{start_test_day}_to_{end_test_day}.jpg'
+
+    subdir = os.path.join(directory, prefix)
+    os.makedirs(subdir, exist_ok=True)
+
+    full_path = os.path.join(subdir, filename)
     plt.savefig(full_path, dpi=300)
     plt.close()
 
     # Plot metrics separately
-    plot_metric_cluster_scores(silhouette_scores, start_test_day, end_test_day, reducer, directory, dim=2, window_size=window_size, metric="Silhouette")
-    plot_metric_cluster_scores(calinski_harabasz_scores, start_test_day, end_test_day, reducer, directory, dim=2, window_size=window_size, metric="Calinski-Harabasz")
-    plot_metric_cluster_scores(davies_bouldin_scores, start_test_day, end_test_day, reducer, directory, dim=2, window_size=window_size, metric="Davies-Bouldin")
+    plot_metric_cluster_scores(silhouette_scores, start_test_day, end_test_day, reducer, subdir, dim=2, window_size=window_size, metric="Silhouette")
+    plot_metric_cluster_scores(calinski_harabasz_scores, start_test_day, end_test_day, reducer, subdir, dim=2, window_size=window_size, metric="Calinski-Harabasz")
+    plot_metric_cluster_scores(davies_bouldin_scores, start_test_day, end_test_day, reducer, subdir, dim=2, window_size=window_size, metric="Davies-Bouldin")
 
 
 def graph_limits_3D(X):
@@ -436,7 +463,7 @@ def plot_sliding_windows(days_label, y_label, clf, X_csp_scaled, X_csp_2d, X_pca
         days_win   = days_label[mask]
 
         # make subfolder
-        day_folder_name = f'Test_Day_{start_day+30}_to_{end_day+30}'
+        day_folder_name = f'Test_Day_{start_day+3}_to_{end_day+3}'
         day_folder_path = os.path.join(save_dir_win, day_folder_name)
         os.makedirs(day_folder_path, exist_ok=True)
 
@@ -444,18 +471,18 @@ def plot_sliding_windows(days_label, y_label, clf, X_csp_scaled, X_csp_2d, X_pca
         plot_multiple_day_2D_projection(
             X2d_win, y_win, days_win,
             start_day, end_day, reducer='CSP', directory=day_folder_path,
-            window_size=window_size, sub205=False
+            window_size=window_size, sub205=True
         )
         plot_multiple_day_2D_projection(
             P2d_win, y_win, days_win,
             start_day, end_day, reducer='PCA', directory=day_folder_path,
-            window_size=window_size, sub205=False
+            window_size=window_size, sub205=True
 
         )
         plot_multiple_day_2D_projection(
             U2d_win, y_win, days_win,
             start_day, end_day, reducer='UMAP', directory=day_folder_path,
-            window_size=window_size, sub205=False
+            window_size=window_size, sub205=True
 
         )
 
@@ -902,15 +929,15 @@ def plot_auc_vs_cluster_separation(X_csp, X_reduced, y_label, days_labels, clf_l
 
 
     # # adjustments for sub205 
-    # start_test_day += 1
-    # end_test_day -= 1
-    # label_days = unique_days + 3  # offset labels by +3 
+    start_test_day += 1
+    end_test_day -= 1
+    label_days = unique_days + 3  # offset labels by +3 
 
 
 
     # adjustments for sub206
-    start_test_day += 1
-    label_days = unique_days + 3  # offset labels by +3 
+    # start_test_day += 1
+    # label_days = unique_days + 3  # offset labels by +3 
     # dim=10 for csp
 
     # Create subplots
