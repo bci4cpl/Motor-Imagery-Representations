@@ -450,6 +450,7 @@ def plot_multiple_day_3D_projection(X_features, y_label, days_labels, start_test
         end_test_day = end_test_day + 30
 
     plt.tight_layout()
+    fig.suptitle(f"{reducer} 3D Feature Space Across Days {start_test_day}–{end_test_day}", fontsize=15)
 
     prefix = "3D"
 
@@ -512,18 +513,18 @@ def plot_sliding_windows(days_label, y_label, clf, X_csp_scaled, X_csp_2d, X_pca
         plot_multiple_day_2D_projection(
             X2d_win, y_win, days_win,
             start_day, end_day, reducer='CSP', directory=day_folder_path,
-            window_size=window_size, sub205=True
+            window_size=window_size, sub206=True
         )
         plot_multiple_day_2D_projection(
             P2d_win, y_win, days_win,
             start_day, end_day, reducer='PCA', directory=day_folder_path,
-            window_size=window_size, sub205=True
+            window_size=window_size, sub206=True
 
         )
         plot_multiple_day_2D_projection(
             U2d_win, y_win, days_win,
             start_day, end_day, reducer='UMAP', directory=day_folder_path,
-            window_size=window_size, sub205=True
+            window_size=window_size, sub206=True
 
         )
 
@@ -531,110 +532,110 @@ def plot_sliding_windows(days_label, y_label, clf, X_csp_scaled, X_csp_2d, X_pca
         plot_multiple_day_3D_projection(
             P3d_win, y_win, days_win,
             start_day, end_day, reducer='PCA', directory=day_folder_path,
-            window_size=window_size, sub205=True, auto_view='global'
+            window_size=window_size, sub206=True, auto_view='global'
 
         )
         plot_multiple_day_3D_projection(
             U3d_win, y_win, days_win,
             start_day, end_day, reducer='UMAP', directory=day_folder_path,
-            window_size=window_size, sub205=True, auto_view='global'
+            window_size=window_size, sub206=True, auto_view='global'
 
         )
 
-        # 3) Accuracy vs cluster separation
-        for (Xr, dim, red) in [ 
-            (X_win, 2, 'CSP'),
-            (X_win, 2, 'PCA'),
-            (X_win, 3, 'PCA'),
-            (X_win, 2, 'UMAP'),
-            (X_win, 3, 'UMAP'),
-        ]:
-            # select the matching reduced array
-            Xred = {
-                ('CSP',2): X2d_win,
-                ('PCA',2): P2d_win,
-                ('PCA',3): P3d_win,
-                ('UMAP',2): U2d_win,
-                ('UMAP',3): U3d_win
-            }[(red, dim)]
+        # # 3) Accuracy vs cluster separation
+        # for (Xr, dim, red) in [ 
+        #     (X_win, 2, 'CSP'),
+        #     (X_win, 2, 'PCA'),
+        #     (X_win, 3, 'PCA'),
+        #     (X_win, 2, 'UMAP'),
+        #     (X_win, 3, 'UMAP'),
+        # ]:
+        #     # select the matching reduced array
+        #     Xred = {
+        #         ('CSP',2): X2d_win,
+        #         ('PCA',2): P2d_win,
+        #         ('PCA',3): P3d_win,
+        #         ('UMAP',2): U2d_win,
+        #         ('UMAP',3): U3d_win
+        #     }[(red, dim)]
 
-            corr_accuracy_inter, corr_accuracy_intra_idle, corr_accuracy_intra_motor, corr_accuracy_silhouette = plot_accuracy_vs_cluster_separation(
-                Xr, Xred,
-                y_win, days_win, clf,
-                start_day, end_day,
-                dim=dim, reducer=red,
-                directory=day_folder_path
-            )
+        #     corr_accuracy_inter, corr_accuracy_intra_idle, corr_accuracy_intra_motor, corr_accuracy_silhouette = plot_accuracy_vs_cluster_separation(
+        #         Xr, Xred,
+        #         y_win, days_win, clf,
+        #         start_day, end_day,
+        #         dim=dim, reducer=red,
+        #         directory=day_folder_path
+        #     )
 
-            utils.log_metric_correlations(
-                metric_name='accuracy',
-                directory=save_dir_win,
-                start_test_day=start_day,
-                end_test_day=end_day,
-                reducer=red,
-                dim=dim,
-                corr_inter=corr_accuracy_inter,
-                corr_intra_idle=corr_accuracy_intra_idle,
-                corr_intra_motor=corr_accuracy_intra_motor
-            )
+        #     utils.log_metric_correlations(
+        #         metric_name='accuracy',
+        #         directory=save_dir_win,
+        #         start_test_day=start_day,
+        #         end_test_day=end_day,
+        #         reducer=red,
+        #         dim=dim,
+        #         corr_inter=corr_accuracy_inter,
+        #         corr_intra_idle=corr_accuracy_intra_idle,
+        #         corr_intra_motor=corr_accuracy_intra_motor
+        #     )
             
-            corr_auc_inter, corr_auc_intra_idle, corr_auc_intra_motor = plot_auc_vs_cluster_separation(
-                Xr, Xred,
-                y_win, days_win, clf,
-                start_day, end_day,
-                dim=dim, reducer=red,
-                directory=day_folder_path
-            )
+        #     corr_auc_inter, corr_auc_intra_idle, corr_auc_intra_motor = plot_auc_vs_cluster_separation(
+        #         Xr, Xred,
+        #         y_win, days_win, clf,
+        #         start_day, end_day,
+        #         dim=dim, reducer=red,
+        #         directory=day_folder_path
+        #     )
 
-            utils.log_metric_correlations(
-                metric_name='AUC',
-                directory=save_dir_win,
-                start_test_day=start_day,
-                end_test_day=end_day,
-                reducer=red,
-                dim=dim,
-                corr_inter=corr_auc_inter,
-                corr_intra_idle=corr_auc_intra_idle,
-                corr_intra_motor=corr_auc_intra_motor
-            )
+        #     utils.log_metric_correlations(
+        #         metric_name='AUC',
+        #         directory=save_dir_win,
+        #         start_test_day=start_day,
+        #         end_test_day=end_day,
+        #         reducer=red,
+        #         dim=dim,
+        #         corr_inter=corr_auc_inter,
+        #         corr_intra_idle=corr_auc_intra_idle,
+        #         corr_intra_motor=corr_auc_intra_motor
+        #     )
 
 
 
-        corr_accuracy_inter, corr_accuracy_intra_idle, corr_accuracy_intra_motor= plot_accuracy_vs_cluster_separation(
-                X_win,X_win, y_win, days_win, clf,
-                start_day, end_day,
-                directory=day_folder_path)
+        # corr_accuracy_inter, corr_accuracy_intra_idle, corr_accuracy_intra_motor= plot_accuracy_vs_cluster_separation(
+        #         X_win,X_win, y_win, days_win, clf,
+        #         start_day, end_day,
+        #         directory=day_folder_path)
         
-        utils.log_metric_correlations(
-                metric_name='accuracy',
-                directory=save_dir_win,
-                start_test_day=start_day,
-                end_test_day=end_day,
-                reducer='CSP',
-                dim=6,
-                corr_inter=corr_accuracy_inter,
-                corr_intra_idle=corr_accuracy_intra_idle,
-                corr_intra_motor=corr_accuracy_intra_motor
-            )
+        # utils.log_metric_correlations(
+        #         metric_name='accuracy',
+        #         directory=save_dir_win,
+        #         start_test_day=start_day,
+        #         end_test_day=end_day,
+        #         reducer='CSP',
+        #         dim=6,
+        #         corr_inter=corr_accuracy_inter,
+        #         corr_intra_idle=corr_accuracy_intra_idle,
+        #         corr_intra_motor=corr_accuracy_intra_motor
+        #     )
 
 
-        corr_auc_inter, corr_auc_intra_idle, corr_auc_intra_motor = plot_auc_vs_cluster_separation(X_win,X_win, y_win, days_win, clf,
-                start_day, end_day,
-                directory=day_folder_path)
+        # corr_auc_inter, corr_auc_intra_idle, corr_auc_intra_motor = plot_auc_vs_cluster_separation(X_win,X_win, y_win, days_win, clf,
+        #         start_day, end_day,
+        #         directory=day_folder_path)
         
-        utils.log_metric_correlations(
-            metric_name='AUC',
-            directory=save_dir_win,
-            start_test_day=start_day,
-            end_test_day=end_day,
-            reducer='CSP',
-            dim=6,
-            corr_inter=corr_auc_inter,
-            corr_intra_idle=corr_auc_intra_idle,
-            corr_intra_motor=corr_auc_intra_motor
-        )
+        # utils.log_metric_correlations(
+        #     metric_name='AUC',
+        #     directory=save_dir_win,
+        #     start_test_day=start_day,
+        #     end_test_day=end_day,
+        #     reducer='CSP',
+        #     dim=6,
+        #     corr_inter=corr_auc_inter,
+        #     corr_intra_idle=corr_auc_intra_idle,
+        #     corr_intra_motor=corr_auc_intra_motor
+        # )
 
-        print(f"Finished window {start_day+30}–{end_day+30}")
+        # print(f"Finished window {start_day+30}–{end_day+30}")
 
 def main_graph(unique_days, accuracies, inter_variances,start_test_day, end_test_day, directory, min_window=2, max_window=15):
 
@@ -1500,16 +1501,16 @@ def delta_auc_var(X_csp, y_label, days_labels, clf_loaded, start_test_day, end_t
 
     mask = np.tril(np.ones_like(delta_auc_matrix, dtype=bool), k=-1)
     #adjustmnets for sub201
-    # tick_positions = np.arange(0, num_days, 20)
-    # tick_labels = tick_positions + 30
+    tick_positions = np.arange(0, num_days, 20)
+    tick_labels = tick_positions + 30
 
     #adjustmnets for sub205
-    tick_positions = np.arange(0, num_days)
-    tick_labels = tick_positions + 3
+    # tick_positions = np.arange(0, num_days)
+    # tick_labels = tick_positions + 3
 
     #adjustmnets for sub206
-    tick_positions = np.arange(0, num_days)
-    tick_labels = tick_positions + 4
+    # tick_positions = np.arange(0, num_days)
+    # tick_labels = tick_positions + 4
 
     fig1, axes = plt.subplots(2, 2, figsize=(16, 12))
     ax1, ax2, ax3, ax4 = axes.flatten()
@@ -1537,7 +1538,7 @@ def delta_auc_var(X_csp, y_label, days_labels, clf_loaded, start_test_day, end_t
 
     cax3 = ax3.matshow(np.where(mask, delta_intra_var_matrix_idle, np.nan), cmap='coolwarm')
     fig1.colorbar(cax3, ax=ax3)
-    ax3.set_title('Delta Intra-Cluster Variance (Idle)')
+    ax3.set_title('Delta Intra-Cluster Variance Idle')
     ax3.set_xticks(tick_positions)
     ax3.set_xlabel('Day Index')
     ax3.set_ylabel('Day Index')
@@ -1547,7 +1548,7 @@ def delta_auc_var(X_csp, y_label, days_labels, clf_loaded, start_test_day, end_t
 
     cax4 = ax4.matshow(np.where(mask, delta_intra_var_matrix_motor, np.nan), cmap='coolwarm')
     fig1.colorbar(cax4, ax=ax4)
-    ax4.set_title('Delta Intra-Cluster Variance (Motor Imagery)')
+    ax4.set_title('Delta Intra-Cluster Variance MI')
     ax4.set_xticks(tick_positions)
     ax4.set_xlabel('Day Index')
     ax4.set_ylabel('Day Index')
@@ -1557,7 +1558,7 @@ def delta_auc_var(X_csp, y_label, days_labels, clf_loaded, start_test_day, end_t
 
     fig1.tight_layout()
     fig1.subplots_adjust(hspace=0.4, wspace=0.3)
-    fig1.savefig(os.path.join(directory, f'Delta_AUC_Matrices_Upper_Triangle_Test_Day_{start_test_day}_to_{end_test_day - 1}.jpg'))
+    # fig1.savefig(os.path.join(directory, f'Delta_AUC_Matrices_Upper_Triangle_Test_Day_{start_test_day}_to_{end_test_day - 1}.jpg'))
     plt.close(fig1)
 
 
@@ -1580,7 +1581,7 @@ def delta_auc_var(X_csp, y_label, days_labels, clf_loaded, start_test_day, end_t
     # Plot delta inter-cluster variance matrix (masked upper triangle)
     cax2 = ax2.matshow(np.where(mask, delta_inter_var_matrix, np.nan), cmap='coolwarm')
     fig2.colorbar(cax2, ax=ax2)
-    ax2.set_title('Delta Inter-Cluster Variance')
+    ax2.set_title('Delta Inter-Cluster Distance')
     ax2.set_xlabel('Day Index')
     ax2.set_ylabel('Day Index')
     ax2.set_xticks(tick_positions)
@@ -1589,17 +1590,17 @@ def delta_auc_var(X_csp, y_label, days_labels, clf_loaded, start_test_day, end_t
     ax2.set_yticklabels(tick_labels)
 
     fig2.tight_layout()
-    fig2.savefig(os.path.join(directory, f'Delta_AUC_and_Inter_Variance_Upper_Triangle_Test_Day_{start_test_day}_to_{end_test_day - 1}.jpg'))
+    fig2.savefig(os.path.join(directory, f'Delta_AUC_and_Inter_Distance_Upper_Triangle_Test_Day_{start_test_day}_to_{end_test_day - 1}.jpg'))
     plt.close(fig2)
 
     # Second figure: Delta Intra-Cluster Variance (Idle) and (Motor Imagery)
     fig3, (ax3, ax4) = plt.subplots(1, 2, figsize=(14, 6))
-    fig3.suptitle('Delta Intra-Cluster Variance (Idle and Motor)', fontsize=14)
+    fig3.suptitle('Delta Intra-Cluster Variance (Idle and MI)', fontsize=14)
 
     # Plot delta intra-cluster variance (Idle) matrix (masked upper triangle)
     cax3 = ax3.matshow(np.where(mask, delta_intra_var_matrix_idle, np.nan), cmap='coolwarm')
     fig3.colorbar(cax3, ax=ax3)
-    ax3.set_title('Delta Intra-Cluster Variance (Idle) Matrix')
+    ax3.set_title('Delta Intra-Cluster Variance Idle')
     ax3.set_xlabel('Day Index')
     ax3.set_ylabel('Day Index')
     ax3.set_xticks(tick_positions)
@@ -1610,7 +1611,7 @@ def delta_auc_var(X_csp, y_label, days_labels, clf_loaded, start_test_day, end_t
     # Plot delta intra-cluster variance (Motor Imagery) matrix (masked upper triangle)
     cax4 = ax4.matshow(np.where(mask, delta_intra_var_matrix_motor, np.nan), cmap='coolwarm')
     fig3.colorbar(cax4, ax=ax4)
-    ax4.set_title('Delta Intra-Cluster Variance (Motor Imagery) Matrix')
+    ax4.set_title('Delta Intra-Cluster Variance MI')
     ax4.set_xlabel('Day Index')
     ax4.set_ylabel('Day Index')
     ax4.set_xticks(tick_positions)
@@ -1649,9 +1650,9 @@ def delta_auc_var(X_csp, y_label, days_labels, clf_loaded, start_test_day, end_t
 
     r_intra_motor, _ = pearsonr(delta_auc_flat, delta_intra_var_flat_motor)
     ax[2].scatter(delta_auc_flat, delta_intra_var_flat_motor, color='purple', alpha=0.6)
-    ax[2].set_title('Delta AUC vs Delta Intra-Cluster Variance Motor Imagery')
+    ax[2].set_title('Delta AUC vs Delta Intra-Cluster Variance MI')
     ax[2].set_xlabel('Delta AUC')
-    ax[2].set_ylabel('Delta Intra-Cluster Variance Motor')
+    ax[2].set_ylabel('Delta Intra-Cluster Variance MI')
     ax[2].legend([f'Corr: {r_intra_motor:.2f}'])
     ax[2].grid(True)
 
