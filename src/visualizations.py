@@ -27,6 +27,7 @@ from scipy.ndimage import uniform_filter1d
 from scipy.stats import f_oneway
 from sklearn.metrics import pairwise_distances
 from scipy import stats
+from scipy.stats import linregress, t
 from scipy.spatial.distance import cdist,euclidean
 from sklearn.decomposition import PCA
 from sklearn.metrics import accuracy_score
@@ -1502,12 +1503,12 @@ def delta_auc_var(X_csp, y_label, days_labels, clf_loaded, start_test_day, end_t
 
     mask = np.tril(np.ones_like(delta_auc_matrix, dtype=bool), k=-1)
     #adjustmnets for sub201
-    tick_positions = np.arange(0, num_days, 20)
-    tick_labels = tick_positions + 30
+    # tick_positions = np.arange(0, num_days, 20)
+    # tick_labels = tick_positions + 30
 
     #adjustmnets for sub205
-    # tick_positions = np.arange(0, num_days)
-    # tick_labels = tick_positions + 3
+    tick_positions = np.arange(0, num_days)
+    tick_labels = tick_positions + 3
 
     #adjustmnets for sub206
     # tick_positions = np.arange(0, num_days)
@@ -1536,7 +1537,7 @@ def delta_auc_var(X_csp, y_label, days_labels, clf_loaded, start_test_day, end_t
     norm_i_motor = TwoSlopeNorm(vmin=-vmax_i_motor, vcenter=0.0, vmax=vmax_i_motor)
 
 
-    fig1, axes = plt.subplots(2, 2, figsize=(16, 12))
+    fig1, axes = plt.subplots(2, 2, figsize=(12, 12))
     ax1, ax2, ax3, ax4 = axes.flatten()
     fig1.suptitle('Delta Matrices for AUC and Cluster Variance', fontsize=16)
 
@@ -1672,38 +1673,55 @@ def delta_auc_var(X_csp, y_label, days_labels, clf_loaded, start_test_day, end_t
 
     fig, ax = plt.subplots(1, 3, figsize=(18, 6))
 
-    r_inter, _ = pearsonr(delta_auc_flat, delta_inter_var_flat)
-    ax[0].scatter(delta_auc_flat, delta_inter_var_flat, color='blue', s=14, alpha=0.6)
-    ax[0].axhline(0, color='k', lw=0.6, alpha=0.3)
-    ax[0].axvline(0, color='k', lw=0.6, alpha=0.3)
-    ax[0].set_title('ΔAUC vs Δ Inter-Cluster Distance', fontsize=12, pad=8)
-    ax[0].set_xlabel('ΔAUC'); ax[0].set_ylabel('Δ Inter-Cluster Distance')
-    ax[0].grid(True, alpha=0.2)
-    ax[0].text(0.98, 0.02, f"r = {r_inter:.2f}", transform=ax[0].transAxes,
-           ha='right', va='bottom',
-           bbox=dict(facecolor='white', alpha=0.8, edgecolor='none'), fontsize=10)
+    # r_inter, _ = pearsonr(delta_auc_flat, delta_inter_var_flat)
+    # ax[0].scatter(delta_auc_flat, delta_inter_var_flat, color='blue', s=14, alpha=0.6)
+    # ax[0].axhline(0, color='k', lw=0.6, alpha=0.3)
+    # ax[0].axvline(0, color='k', lw=0.6, alpha=0.3)
+    # ax[0].set_title('ΔAUC vs Δ Inter-Cluster Distance', fontsize=12, pad=8)
+    # ax[0].set_xlabel('ΔAUC'); ax[0].set_ylabel('Δ Inter-Cluster Distance')
+    # ax[0].grid(True, alpha=0.2)
+    # ax[0].text(0.98, 0.02, f"r = {r_inter:.2f}", transform=ax[0].transAxes,
+    #        ha='right', va='bottom',
+    #        bbox=dict(facecolor='white', alpha=0.8, edgecolor='none'), fontsize=10)
 
-    r_intra_idle, _ = pearsonr(delta_auc_flat, delta_intra_var_flat_idle)
-    ax[1].scatter(delta_auc_flat, delta_intra_var_flat_idle, color='green', s=14, alpha=0.6)
-    ax[1].set_title('ΔAUC vs Δ Intra-Cluster Variance Idle', fontsize=12, pad=8)
-    ax[1].set_xlabel('ΔAUC'); ax[1].set_ylabel('Δ Intra-Cluster Variance Idle')
-    ax[1].grid(True, alpha=0.2)
-    ax[1].text(0.98, 0.02, f"r = {r_intra_idle:.2f}", transform=ax[1].transAxes,
-           ha='right', va='bottom',
-           bbox=dict(facecolor='white', alpha=0.8, edgecolor='none'), fontsize=10)
+    # r_intra_idle, _ = pearsonr(delta_auc_flat, delta_intra_var_flat_idle)
+    # ax[1].scatter(delta_auc_flat, delta_intra_var_flat_idle, color='green', s=14, alpha=0.6)
+    # ax[1].set_title('ΔAUC vs Δ Intra-Cluster Variance Idle', fontsize=12, pad=8)
+    # ax[1].set_xlabel('ΔAUC'); ax[1].set_ylabel('Δ Intra-Cluster Variance Idle')
+    # ax[1].grid(True, alpha=0.2)
+    # ax[1].text(0.98, 0.02, f"r = {r_intra_idle:.2f}", transform=ax[1].transAxes,
+    #        ha='right', va='bottom',
+    #        bbox=dict(facecolor='white', alpha=0.8, edgecolor='none'), fontsize=10)
 
-    r_intra_motor, _ = pearsonr(delta_auc_flat, delta_intra_var_flat_motor)
-    ax[2].scatter(delta_auc_flat, delta_intra_var_flat_motor, color='purple',s=14, alpha=0.6)
-    ax[2].set_title('ΔAUC vs Δ Intra-Cluster Variance MI', fontsize=12, pad=8)
-    ax[2].set_xlabel('ΔAUC'); ax[2].set_ylabel('Δ Intra-Cluster Variance MI')
-    ax[2].grid(True, alpha=0.2)
-    ax[2].text(0.98, 0.02, f"r = {r_intra_motor:.2f}", transform=ax[2].transAxes,
-           ha='right', va='bottom',
-           bbox=dict(facecolor='white', alpha=0.8, edgecolor='none'), fontsize=10)
+    # r_intra_motor, _ = pearsonr(delta_auc_flat, delta_intra_var_flat_motor)
+    # ax[2].scatter(delta_auc_flat, delta_intra_var_flat_motor, color='purple',s=14, alpha=0.6)
+    # ax[2].set_title('ΔAUC vs Δ Intra-Cluster Variance MI', fontsize=12, pad=8)
+    # ax[2].set_xlabel('ΔAUC'); ax[2].set_ylabel('Δ Intra-Cluster Variance MI')
+    # ax[2].grid(True, alpha=0.2)
+    # ax[2].text(0.98, 0.02, f"r = {r_intra_motor:.2f}", transform=ax[2].transAxes,
+    #        ha='right', va='bottom',
+    #        bbox=dict(facecolor='white', alpha=0.8, edgecolor='none'), fontsize=10)
+
+    scatter_with_fit(ax[0], delta_auc_flat, delta_inter_var_flat,
+                    color='tab:blue',
+                    title='ΔAUC vs Δ Inter-Cluster Distance',
+                    xlabel='ΔAUC', ylabel='Δ Inter-Cluster Distance',
+                    alpha_sig=0.05)
+
+    scatter_with_fit(ax[1], delta_auc_flat, delta_intra_var_flat_idle,
+                    color='tab:green',
+                    title='ΔAUC vs Δ Intra-Cluster Variance Idle',
+                    xlabel='ΔAUC', ylabel='Δ Intra-Cluster Variance Idle',
+                    alpha_sig=0.05)
+
+    scatter_with_fit(ax[2], delta_auc_flat, delta_intra_var_flat_motor,
+                    color='tab:purple',
+                    title='ΔAUC vs Δ Intra-Cluster Variance MI',
+                    xlabel='ΔAUC', ylabel='Δ Intra-Cluster Variance MI',
+                    alpha_sig=0.05)
 
     fig.tight_layout()
     fig.savefig(os.path.join(directory, f'Delta_AUC_vs_Cluster_Variances_Test_Day_{start_test_day}_to_{end_test_day - 1}.jpg'))
-    plt.show()
     plt.close(fig)
 
 
@@ -1981,16 +1999,16 @@ def delta_vs_raw(X_csp, y_label, days_labels, clf_loaded, start_test_day, end_te
 
     mask = np.tril(np.ones_like(delta_auc_matrix, dtype=bool), k=-1)
     #adjustmnets for sub201
-    offset = 30
-    tick_positions = np.arange(0, num_days, 20) + offset
-    tick_labels = tick_positions
-    tick_positions_delta = np.arange(0, num_days, 20)
+    # offset = 30
+    # tick_positions = np.arange(0, num_days, 20) + offset
+    # tick_labels = tick_positions
+    # tick_positions_delta = np.arange(0, num_days, 20)
 
     #adjustmnets for sub205
-    # offset = 3
-    # tick_positions = np.arange(0, num_days) + offset
-    # tick_labels = tick_positions 
-    # tick_positions_delta = np.arange(0, num_days)
+    offset = 3
+    tick_positions = np.arange(0, num_days) + offset
+    tick_labels = tick_positions 
+    tick_positions_delta = np.arange(0, num_days)
 
     #adjustmnets for sub206
     # offset = 4
@@ -2113,6 +2131,100 @@ def delta_vs_raw(X_csp, y_label, days_labels, clf_loaded, start_test_day, end_te
     out = os.path.join(directory, f"Raw_vs_Delta_{day_labels[0]}_to_{day_labels[-1]}.jpg")
     fig.savefig(out, dpi=300, bbox_inches='tight')
     plt.close(fig)
+
+
+
+
+def scatter_with_fit(ax, x, y, color, title, xlabel, ylabel, star_scheme='standard', alpha_sig=0.05):
+
+    ax.scatter(x, y, s=36, alpha=0.75, color=color, edgecolor='k', linewidth=0.5)
+
+    # zero lines
+    ax.axhline(0, color='k', lw=0.6, alpha=0.3)
+    ax.axvline(0, color='k', lw=0.6, alpha=0.3)
+
+    # regression
+    if len(x) >= 3 and np.std(x) > 0 and np.std(y) > 0:
+        res = linregress(x, y)  # slope, intercept, rvalue, pvalue, stderr
+        xs = np.linspace(np.min(x), np.max(x), 200)
+        ys = res.intercept + res.slope * xs
+
+        
+        stars = p_to_stars(res.pvalue, scheme=star_scheme)
+        line_style = '-' if res.pvalue < alpha_sig else (0, (4, 2))
+
+        ax.plot(xs, ys, color=color, lw=1.6, alpha=0.95, linestyle=line_style)
+
+        # 95% CI band
+        n = len(x)
+        yhat = res.intercept + res.slope * x
+        s_yx = np.sqrt(np.sum((y - yhat)**2) / (n - 2))
+        xbar = np.mean(x)
+        Sxx = np.sum((x - xbar)**2)
+        tval = t.ppf(0.975, df=n-2) 
+        se = s_yx * np.sqrt(1/n + (xs - xbar)**2 / Sxx)
+        ax.fill_between(xs, ys - tval*se, ys + tval*se, alpha=0.18, color=color, linewidth=0)
+
+        txt = f"r = {res.rvalue:.2f}, p {format_p(res.pvalue)}, {stars}"
+    else:
+        txt = "n<3 or zero variance"
+
+    # symmetric limits around 0 (helps compare panels)
+    def sym_lim(arr):
+        m = np.nanmax(np.abs(arr))
+        return (-1.05*m, 1.05*m) if m > 0 else (-1, 1)
+
+    ax.set_xlim(*sym_lim(x))
+    ax.set_ylim(*sym_lim(y))
+
+    # titles / labels / grid
+    ax.set_title(title, fontsize=12, pad=8)
+    ax.set_xlabel(xlabel)
+    ax.set_ylabel(ylabel)
+    ax.grid(True, alpha=0.2)
+
+    # stats badge
+    ax.text(0.98, 0.02, txt, transform=ax.transAxes,
+            ha='right', va='bottom',
+            bbox=dict(facecolor='white', alpha=0.85, edgecolor='none'), fontsize=10)
+
+
+
+def p_to_stars(p, scheme='standard'):
+    """
+    Return significance stars for a p-value.
+    scheme='standard' : * p<0.05, ** p<0.01, *** p<0.001, **** p<1e-4
+    scheme='tight'    : ** p<0.005, *** p<0.001, **** p<1e-4  (no single-star)
+    """
+    if scheme == 'tight':   # if you want 0.005 threshold emphasized
+        if p < 1e-4: return '****'
+        if p < 1e-3: return '***'
+        if p < 5e-3: return '**'
+        return 'ns'
+    # standard scheme
+    if p < 1e-4: return '****'
+    if p < 1e-3: return '***'
+    if p < 1e-2: return '**'
+    if p < 5e-2: return '*'
+    return 'ns'
+
+def format_p(p):
+    return f"<1e-3" if p < 1e-3 else f"{p:.3f}"
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 
