@@ -969,15 +969,15 @@ def plot_auc_vs_cluster_separation(X_csp, X_reduced, y_label, days_labels, clf_l
     corr_auc_intra_motor, _ = pearsonr(aucs, intra_variances_motor)
 
     # adjustments for sub201
-    # start_test_day += 30
-    # end_test_day += 30
-    # label_days = 30  # offset labels by +3 
+    start_test_day += 30
+    end_test_day += 30
+    label_days = 30  # offset labels by +3 
 
 
     # # adjustments for sub205 
-    start_test_day += 1
-    end_test_day -= 1
-    label_days = unique_days + 3  # offset labels by +3 
+    # start_test_day += 1
+    # end_test_day -= 1
+    # label_days = unique_days + 3  # offset labels by +3 
 
 
 
@@ -1037,7 +1037,7 @@ def plot_auc_vs_cluster_separation(X_csp, X_reduced, y_label, days_labels, clf_l
 
     # Adjust x-axis ticks for all subplots
     for ax in [ax1, ax2, ax3]:
-        # xticks = ax.get_xticks().astype(int) for sub 201
+        xticks = ax.get_xticks().astype(int) #for sub 201
         # ax.set_xticklabels(xticks+label_days) #for multiple graphs 10 days FOE SUB 201
 
         ax.set_xticks(unique_days)# for multiple graphs 10 days sub 205
@@ -1503,12 +1503,12 @@ def delta_auc_var(X_csp, y_label, days_labels, clf_loaded, start_test_day, end_t
 
     mask = np.tril(np.ones_like(delta_auc_matrix, dtype=bool), k=-1)
     #adjustmnets for sub201
-    # tick_positions = np.arange(0, num_days, 20)
-    # tick_labels = tick_positions + 30
+    tick_positions = np.arange(0, num_days, 20)
+    tick_labels = tick_positions + 30
 
     #adjustmnets for sub205
-    tick_positions = np.arange(0, num_days)
-    tick_labels = tick_positions + 3
+    # tick_positions = np.arange(0, num_days)
+    # tick_labels = tick_positions + 3
 
     #adjustmnets for sub206
     # tick_positions = np.arange(0, num_days)
@@ -1672,35 +1672,6 @@ def delta_auc_var(X_csp, y_label, days_labels, clf_loaded, start_test_day, end_t
     delta_intra_var_flat_motor = delta_intra_var_matrix_motor[tril_indices]
 
     fig, ax = plt.subplots(1, 3, figsize=(18, 6))
-
-    # r_inter, _ = pearsonr(delta_auc_flat, delta_inter_var_flat)
-    # ax[0].scatter(delta_auc_flat, delta_inter_var_flat, color='blue', s=14, alpha=0.6)
-    # ax[0].axhline(0, color='k', lw=0.6, alpha=0.3)
-    # ax[0].axvline(0, color='k', lw=0.6, alpha=0.3)
-    # ax[0].set_title('ΔAUC vs Δ Inter-Cluster Distance', fontsize=12, pad=8)
-    # ax[0].set_xlabel('ΔAUC'); ax[0].set_ylabel('Δ Inter-Cluster Distance')
-    # ax[0].grid(True, alpha=0.2)
-    # ax[0].text(0.98, 0.02, f"r = {r_inter:.2f}", transform=ax[0].transAxes,
-    #        ha='right', va='bottom',
-    #        bbox=dict(facecolor='white', alpha=0.8, edgecolor='none'), fontsize=10)
-
-    # r_intra_idle, _ = pearsonr(delta_auc_flat, delta_intra_var_flat_idle)
-    # ax[1].scatter(delta_auc_flat, delta_intra_var_flat_idle, color='green', s=14, alpha=0.6)
-    # ax[1].set_title('ΔAUC vs Δ Intra-Cluster Variance Idle', fontsize=12, pad=8)
-    # ax[1].set_xlabel('ΔAUC'); ax[1].set_ylabel('Δ Intra-Cluster Variance Idle')
-    # ax[1].grid(True, alpha=0.2)
-    # ax[1].text(0.98, 0.02, f"r = {r_intra_idle:.2f}", transform=ax[1].transAxes,
-    #        ha='right', va='bottom',
-    #        bbox=dict(facecolor='white', alpha=0.8, edgecolor='none'), fontsize=10)
-
-    # r_intra_motor, _ = pearsonr(delta_auc_flat, delta_intra_var_flat_motor)
-    # ax[2].scatter(delta_auc_flat, delta_intra_var_flat_motor, color='purple',s=14, alpha=0.6)
-    # ax[2].set_title('ΔAUC vs Δ Intra-Cluster Variance MI', fontsize=12, pad=8)
-    # ax[2].set_xlabel('ΔAUC'); ax[2].set_ylabel('Δ Intra-Cluster Variance MI')
-    # ax[2].grid(True, alpha=0.2)
-    # ax[2].text(0.98, 0.02, f"r = {r_intra_motor:.2f}", transform=ax[2].transAxes,
-    #        ha='right', va='bottom',
-    #        bbox=dict(facecolor='white', alpha=0.8, edgecolor='none'), fontsize=10)
 
     scatter_with_fit(ax[0], delta_auc_flat, delta_inter_var_flat,
                     color='tab:blue',
@@ -1999,16 +1970,16 @@ def delta_vs_raw(X_csp, y_label, days_labels, clf_loaded, start_test_day, end_te
 
     mask = np.tril(np.ones_like(delta_auc_matrix, dtype=bool), k=-1)
     #adjustmnets for sub201
-    # offset = 30
-    # tick_positions = np.arange(0, num_days, 20) + offset
-    # tick_labels = tick_positions
-    # tick_positions_delta = np.arange(0, num_days, 20)
+    offset = 30
+    tick_positions = np.arange(0, num_days, 20) + offset
+    tick_labels = tick_positions
+    tick_positions_delta = np.arange(0, num_days, 20)
 
     #adjustmnets for sub205
-    offset = 3
-    tick_positions = np.arange(0, num_days) + offset
-    tick_labels = tick_positions 
-    tick_positions_delta = np.arange(0, num_days)
+    # offset = 3
+    # tick_positions = np.arange(0, num_days) + offset
+    # tick_labels = tick_positions 
+    # tick_positions_delta = np.arange(0, num_days)
 
     #adjustmnets for sub206
     # offset = 4
@@ -2052,6 +2023,15 @@ def delta_vs_raw(X_csp, y_label, days_labels, clf_loaded, start_test_day, end_te
      ax_inter_raw, ax_inter_delta,
      ax_idle_raw, ax_idle_delta,
      ax_mi_raw,   ax_mi_delta) = axes.flatten()
+    
+    panel_letters = ['A', 'B', 'C', 'D']
+    for ax, letter in zip([ax_auc_raw, ax_inter_raw, ax_idle_raw, ax_mi_raw], panel_letters):
+        ax.text(-0.08, 1.02, letter,            # left of x=0, above y=1
+                transform=ax.transAxes,
+                ha='right', va='bottom',
+                fontsize=13, fontweight='bold',
+                clip_on=False)   
+
 
     # ---------- Row 1: AUC ----------
     ax_auc_raw.plot(day_labels, aucs, lw=1.6)
@@ -2125,6 +2105,9 @@ def delta_vs_raw(X_csp, y_label, days_labels, clf_loaded, start_test_day, end_te
     ax_mi_delta.set_xticks(tick_positions_delta); ax_mi_delta.set_xticklabels(tick_labels)
     ax_mi_delta.set_yticks(tick_positions_delta); ax_mi_delta.set_yticklabels(tick_labels)
     ax_mi_delta.set_xlabel("Day Index");       ax_mi_delta.set_ylabel("Day Index")
+
+    annotate_past_future(ax_auc_delta)   # Row 1, right column only
+
 
     fig.suptitle(f"Across-Day Dynamics: Raw versus Pairwise Δ", fontsize=16)
     fig.tight_layout()
@@ -2210,6 +2193,42 @@ def p_to_stars(p, scheme='standard'):
 
 def format_p(p):
     return f"<1e-3" if p < 1e-3 else f"{p:.3f}"
+
+
+def annotate_past_future(ax,
+                         corner=(0.86, 0.84),   # where the L-corner sits (x,y) in axes fraction
+                         hlen=0.16, vlen=0.22,  # horizontal (left) and vertical (down) lengths
+                         color='0.25', fs=11,   # text color & size
+                         head=6, lw=1.2,        # arrowhead size & line width
+                         ygap=0.035, xgap=0.02  # text offsets (above/beside arrows)
+                         ):
+    """
+    Draw 'Past' (←) and 'Future' (↓) arrows in the upper-right white triangle
+    of a Δ heatmap. Past is horizontal leftward; Future is vertical downward.
+    """
+    xC, yC = corner
+    xL = xC - hlen            # left end of the horizontal arrow
+    yB = yC - vlen            # bottom end of the vertical arrow
+
+    # ---- Past: horizontal, head on the LEFT
+    ax.annotate('', xy=(xL, yC), xytext=(xC, yC),
+                xycoords='axes fraction', textcoords='axes fraction',
+                arrowprops=dict(arrowstyle='-|>', mutation_scale=head,
+                                lw=lw, color=color))
+    ax.text((xL + xC)/2.0, yC + ygap, 'Past',
+            transform=ax.transAxes, ha='center', va='bottom',
+            fontsize=fs, fontweight='bold', color=color)
+
+    # ---- Future: vertical, head at the BOTTOM (downward)
+    ax.annotate('', xy=(xC, yB), xytext=(xC, yC),
+                xycoords='axes fraction', textcoords='axes fraction',
+                arrowprops=dict(arrowstyle='-|>', mutation_scale=head,
+                                lw=lw, color=color))
+    ax.text(xC + xgap, (yB + yC)/2.0, 'Future',
+            transform=ax.transAxes, ha='left', va='center',
+            fontsize=fs, fontweight='bold', color=color)
+
+
 
 
 
