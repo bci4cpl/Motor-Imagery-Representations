@@ -1010,7 +1010,7 @@ def plot_auc_vs_cluster_separation(X_csp, X_reduced, y_label, days_labels, clf_l
                 transform=ax1_twin.transAxes, ha='right', va='bottom',
                 bbox=dict(facecolor='white', alpha=0.85, edgecolor='none'),
                 fontsize=10)
-    ax1.set_title("AUC vs Inter-cluster distance", fontsize=12)
+    ax1.set_title("AUC vs Inter-cluster Distance", fontsize=12)
 
     # Second subplot: Accuracy vs Intra-Cluster Distance (Idle)
     ax2.set_xlabel('Days', labelpad=3)
@@ -1027,7 +1027,7 @@ def plot_auc_vs_cluster_separation(X_csp, X_reduced, y_label, days_labels, clf_l
                 transform=ax2_twin.transAxes, ha='right', va='bottom',
                 bbox=dict(facecolor='white', alpha=0.85, edgecolor='none'),
                 fontsize=10)
-    ax2.set_title("AUC vs Intra-cluster variance Idle", fontsize=12)
+    ax2.set_title("AUC vs Intra-cluster Variance Idle", fontsize=12)
 
     # Third subplot: Accuracy vs Intra-Cluster Distance (Motor Imagery)
     ax3.set_xlabel('Days', labelpad=3)
@@ -1044,7 +1044,7 @@ def plot_auc_vs_cluster_separation(X_csp, X_reduced, y_label, days_labels, clf_l
                 transform=ax3_twin.transAxes, ha='right', va='bottom',
                 bbox=dict(facecolor='white', alpha=0.85, edgecolor='none'),
                 fontsize=10)
-    ax3.set_title("AUC vs Intra-cluster variance Motor Imagery", fontsize=12)
+    ax3.set_title("AUC vs Intra-cluster Variance Motor Imagery", fontsize=12)
 
     # Adjust x-axis ticks for all subplots
     for ax in [ax1, ax2, ax3]:
@@ -1059,9 +1059,17 @@ def plot_auc_vs_cluster_separation(X_csp, X_reduced, y_label, days_labels, clf_l
         ax.grid(True, which='minor', axis='both', linestyle=':', linewidth=0.4, alpha=0.15)
         ax.minorticks_on()
 
+    panel_letters = ['A', 'B', 'C']
+    for ax, letter in zip([ax1, ax2, ax3], panel_letters):
+        ax.text(-0.03, 1.02, letter,            # left of x=0, above y=1
+                transform=ax.transAxes,
+                ha='right', va='bottom',
+                fontsize=13, fontweight='bold',
+                clip_on=False)   
+
     # Adjust layout and save
     fig.tight_layout()  # Adjust the tight_layout to leave space for title
-    filename = f'AUC vs Variance in {dim}D {reducer} space_Test_Day_{start_test_day}_to_{end_test_day}.jpg'
+    filename = f'1AUC vs Variance in {dim}D {reducer} space_Test_Day_{start_test_day}_to_{end_test_day}.jpg'
     full_path = os.path.join(directory, filename)
     plt.savefig(full_path, bbox_inches='tight', dpi=300)
 
