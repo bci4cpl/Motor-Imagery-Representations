@@ -2,41 +2,53 @@ import os
 import visualizations
 import utils
 import numpy as np
-from loader_var import load_cached_variables
+from loader_var import load_cached_variab
+
+# ─── Configuration ────────────────────────────────────────────────────────────
+# CHANGE THIS ID TO SWITCH SUBJECTS (201, 205, 206)
+CURRENT_SUB = '201'
+
+# Base Paths
+BASE_PATH = r"C:/Users/owner/Desktop/Niv"
+CACHE_PATH = os.path.join(BASE_PATH, "Motor imagery skill/cache")
+FIGURES_PATH = os.path.join(BASE_PATH, "Niv_github/_Figures") 
+
+# Subject-specific settings
+SUBJECT_CONFIG = {
+    '201': { 'window_size': 10, 'overlap': 5, 'window_dir': "10_day_window" },
+    '205': { 'window_size': 5,  'overlap': 0, 'window_dir': "10_day_window" },
+    '206': { 'window_size': 6,  'overlap': 0, 'window_dir': "10_day_window" }
+}
+
+sub_config = SUBJECT_CONFIG[CURRENT_SUB]
 
 def main():
     # ─── 1) Load all cached variables ──────────────────────────────────────────
-
-    #C:\Users\owner\Desktop\Niv\Motor imagery skill\cache
-
-    vars = load_cached_variables(load_path='C:/Users/owner/Desktop/Niv/Motor imagery skill/cache/sub_201')
-    # vars = load_cached_variables(load_path='C:/Users/owner/Desktop/Niv/Motor imagery skill/cache/sub_205')
-    # vars = load_cached_variables(load_path='C:/Users/owner/Desktop/Niv/Motor imagery skill/cache/sub_206')
-
-
-    globals().update(vars)
+    print(f"=== Running experiment for Subject {CURRENT_SUB} ===")
     
+    sub_config = SUBJECT_CONFIG[CURRENT_SUB]
+    load_path = os.path.join(CACHE_PATH, f'sub_{CURRENT_SUB}')
+    print(f"Loading cache from: {load_path}")
 
-    # ───2) Setup ──────────────────────────────────────────
+    vars = load_cached_variables(load_path=load_path)
+    globals().update(vars)
 
-    # C:\Users\owner\Desktop\Niv\Niv_github\Figures
+# ─── 2) Setup Directories ──────────────────────────────────────────
+    # Dynamic Save Paths
+    save_dir = os.path.join(FIGURES_PATH, f'sub_{CURRENT_SUB}')
+    save_dir_10_day_window = os.path.join(save_dir, sub_config['window_dir'])
+    save_dir_centers = os.path.join(save_dir, "centers")
+    save_dir_trial_window = os.path.join(save_dir, "trial_window")
 
-    save_dir = r"C:/Users/owner/Desktop/Niv/Niv_github/Figures/sub_201"
-    save_dir_10_day_window = r"C:/Users/owner/Desktop/Niv/Niv_github/Figures/sub_201/10_day_window"
-    save_dir_centers = r"C:/Users/owner/Desktop/Niv/Niv_github/Figures/sub_201/centers"
-    save_dir_trial_window = r"C:/Users/owner/Desktop/Niv/Niv_github/Figures/sub_201/trial_window"
+    # Ensure they exist
+    for path in [save_dir, save_dir_10_day_window, save_dir_centers, save_dir_trial_window]:
+        try:
+            os.makedirs(path, exist_ok=True)
+            print(f"[OK] Directory exists: {path}")
+        except OSError as err:
+            print(f"[ERROR] Could not create {path}: {err}")
 
-    # save_dir = r"C:/Users/owner/Desktop/Niv/Niv_github/Figures/sub_205"
-    # save_dir_10_day_window = r"C:/Users/owner/Desktop/Niv/Niv_github/Figures/sub_205/10_day_window"
-    # save_dir_centers = r"C:/Users/owner/Desktop/Niv/Niv_github/Figures/sub_205/centers"
-    # save_dir_trial_window = r"C:/Users/owner/Desktop/Niv/Niv_github/Figures/sub_205/trial_window"
-
-
-    # save_dir = r"C:/Users/owner/Desktop/Niv/Niv_github/Figures/sub_206"
-    # save_dir_10_day_window = r"C:/Users/owner/Desktop/Niv/Niv_github/Figures/sub_206/10_day_window"
-    # save_dir_centers = r"C:/Users/owner/Desktop/Niv/Niv_github/Figures/sub_206/centers"
-    # save_dir_trial_window = r"C:/Users/owner/Desktop/Niv/Niv_github/Figures/sub_206/trial_window"
-
+#############################
     unique_days = np.unique(days_label)
 
     spaces = {
