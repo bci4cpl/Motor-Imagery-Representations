@@ -939,10 +939,10 @@ def plot_accuracy_vs_cluster_separation(
 
 
 
-
-
-def plot_auc_vs_cluster_separation(X_csp, X_reduced, y_label, days_labels, clf_loaded, start_test_day, end_test_day, dim=6, reducer='CSP', smooth=False,smooth_scatter=False, window=5, directory='None'):
+def plot_auc_vs_cluster_separation(X_csp, X_reduced, y_label, days_labels, clf_loaded, start_test_day, end_test_day, dim=6, reducer='CSP', label_offset=0, start_adj=0, end_adj=0,smooth=False,smooth_scatter=False, window=5, directory='None'):
     unique_days = np.unique(days_labels)
+    adjusted_start_day = start_test_day + start_adj
+    adjusted_end_day = end_test_day + end_adj
     aucs = []
     inter_variances = []
     intra_variances_idle = []
@@ -968,91 +968,54 @@ def plot_auc_vs_cluster_separation(X_csp, X_reduced, y_label, days_labels, clf_l
     corr_auc_intra_idle, p_auc_intra_idle = pearsonr(aucs, intra_variances_idle)
     corr_auc_intra_motor, p_auc_intra_motor = pearsonr(aucs, intra_variances_motor)
 
-    # adjustments for sub201
-    label_days = 30  # offset labels by +3 
-
-    # # adjustments for sub205 
-    # start_test_day += 1
-    # end_test_day -= 1
-    # label_days = unique_days + 3  # offset labels by +3 
-
-
-
-    # adjustments for sub206
-    # start_test_day += 1
-    # label_days = unique_days + 3  # offset labels by +3 
-
     # Create subplots
     fig, (ax1, ax2, ax3) = plt.subplots(3, 1, figsize=(12, 12), constrained_layout=True)  # Tighter height of 12
-
     plt.subplots_adjust(hspace=0.25)
 
     fig.suptitle(
         f"AUC vs. Cluster-Separation Metrics in {dim}D {reducer} Space ",
-        # f"(Days {start_test_day}-{end_test_day})",
-        fontsize=14, y=0.995
+        fontsize=14
     )
 
-    # First subplot: Accuracy vs Inter-Cluster Distance
-    ax1.set_xlabel('Days', labelpad=3)
-    ax1.set_ylabel('AUC', color='tab:blue')
-    ax1.plot(unique_days, aucs, label='AUC', marker='o', color='tab:blue')
-    ax1.tick_params(axis='y', labelcolor='tab:blue')
+    # Helper function to plot each metric
+    def plot_metric(ax, metric_data, metric_name, color, corr, p_val):
+        ax.set_xlabel('Days', labelpad=3)
+        ax.set_ylabel('AUC', color='tab:blue')
+        ax.plot(unique_days, aucs, label='AUC', marker='o', color='tab:blue')
+        ax.tick_params(axis='y', labelcolor='tab:blue')
 
-    ax1_twin = ax1.twinx()
-    ax1_twin.set_ylabel("Inter-Cluster Distance [Cohen's d]", color='tab:red')
-    ax1_twin.plot(unique_days, inter_variances, label="Inter-Cluster Distance [Cohen's d]", marker='x', color='tab:red')
-    ax1_twin.tick_params(axis='y', labelcolor='tab:red')
-    txt = f"r = {corr_auc_inter:.2f}, p {format_p(p_auc_inter)}, {p_to_stars(p_auc_inter)}"
-
-    ax1_twin.text(0.98, 0.04, txt,
-                transform=ax1_twin.transAxes, ha='right', va='bottom',
-                bbox=dict(facecolor='white', alpha=0.85, edgecolor='none'),
-                fontsize=10)
-    ax1.set_title("AUC vs Inter-cluster Distance", fontsize=12)
-
-    # Second subplot: Accuracy vs Intra-Cluster Distance (Idle)
-    ax2.set_xlabel('Days', labelpad=3)
-    ax2.set_ylabel('AUC', color='tab:blue')
-    ax2.plot(unique_days, aucs, label='AUC', marker='o', color='tab:blue')
-    ax2.tick_params(axis='y', labelcolor='tab:blue')
-
-    ax2_twin = ax2.twinx()
-    ax2_twin.set_ylabel('Intra-Cluster Variance Idle [std]', color='tab:green')
-    ax2_twin.plot(unique_days, intra_variances_idle, label='Intra-Cluster Variance Idle [std]', marker='x', color='tab:green')
-    ax2_twin.tick_params(axis='y', labelcolor='tab:green')
-    txt = f"r = {corr_auc_intra_idle:.2f}, p {format_p(p_auc_intra_idle)}, {p_to_stars(p_auc_intra_idle)}"
-    ax2_twin.text(0.98, 0.04, txt,
-                transform=ax2_twin.transAxes, ha='right', va='bottom',
-                bbox=dict(facecolor='white', alpha=0.85, edgecolor='none'),
-                fontsize=10)
-    ax2.set_title("AUC vs Intra-cluster Variance Idle", fontsize=12)
-
-    # Third subplot: Accuracy vs Intra-Cluster Distance (Motor Imagery)
-    ax3.set_xlabel('Days', labelpad=3)
-    ax3.set_ylabel('AUC', color='tab:blue')
-    ax3.plot(unique_days[:len(aucs)], aucs, label='AUC', marker='o', color='tab:blue')
-    ax3.tick_params(axis='y', labelcolor='tab:blue')
-
-    ax3_twin = ax3.twinx()
-    ax3_twin.set_ylabel('Intra-Cluster Variance Motor Imagery [std]', color='tab:purple')
-    ax3_twin.plot(unique_days, intra_variances_motor, label='Intra-Cluster Variance Motor Imagery [std]', marker='x', color='tab:purple')
-    ax3_twin.tick_params(axis='y', labelcolor='tab:purple')
-    txt = f"r = {corr_auc_intra_motor:.2f}, p {format_p(p_auc_intra_motor)}, {p_to_stars(p_auc_intra_motor)}"
-    ax3_twin.text(0.98, 0.04, txt,
-                transform=ax3_twin.transAxes, ha='right', va='bottom',
-                bbox=dict(facecolor='white', alpha=0.85, edgecolor='none'),
-                fontsize=10)
-    ax3.set_title("AUC vs Intra-cluster Variance Motor Imagery", fontsize=12)
-
-    # Adjust x-axis ticks for all subplots
-    for ax in [ax1, ax2, ax3]:
-        xticks = ax.get_xticks().astype(int) #for sub 201
-        ax.set_xticklabels(xticks+label_days) #for multiple graphs 10 days FOE SUB 201
-
-        # ax.set_xticks(unique_days)# for multiple graphs 10 days sub 205
-        # ax.set_xticklabels([str(day) for day in label_days]) # for multiple graphs 10 days sub 205
+        ax_twin = ax.twinx()
+        ax_twin.set_ylabel(metric_name, color=color)
+        ax_twin.plot(unique_days, metric_data, label=metric_name, marker='x', color=color)
+        ax_twin.tick_params(axis='y', labelcolor=color)
         
+        # P-value text {format_p(p_auc_inter)}, {p_to_stars(p_auc_inter)
+        txt = f"r = {corr:.2f}, p {format_p(p_val)}, {p_to_stars(p_val)}"
+        
+        ax_twin.text(0.98, 0.04, txt, transform=ax_twin.transAxes, ha='right', va='bottom',
+                     bbox=dict(facecolor='white', alpha=0.85, edgecolor='none'), fontsize=10)
+        ax.set_title(f"AUC vs {metric_name.split('[')[0]}", fontsize=12)
+        return ax, ax_twin
+
+    # Plot the 3 graphs
+    ax1, ax1_twin = plot_metric(ax1, inter_variances, "Inter-Cluster Distance [Cohen's d]", 'tab:red', corr_auc_inter, p_auc_inter)
+    ax2, ax2_twin = plot_metric(ax2, intra_variances_idle, 'Intra-Cluster Variance Idle [std]', 'tab:green', corr_auc_intra_idle, p_auc_intra_idle)
+    ax3, ax3_twin = plot_metric(ax3, intra_variances_motor, 'Intra-Cluster Variance Motor Imagery [std]', 'tab:purple', corr_auc_intra_motor, p_auc_intra_motor)
+
+# --- HANDLE OFFSETS ---
+    # Sub 201 Logic: Use Index + 30
+    if label_offset == 30: 
+        for ax in [ax1, ax2, ax3]:
+             xticks = ax.get_xticks().astype(int)
+             ax.set_xticklabels(xticks + label_offset)
+    # Sub 205/206 Logic: Use Value + 3
+    else: 
+        for ax in [ax1, ax2, ax3]:
+             # Assuming unique_days are the values we want to shift
+             ax.set_xticks(unique_days)
+             ax.set_xticklabels(unique_days + label_offset) 
+
+    # Optional: nicer grid (light majors + faint minors)        
     for ax in [ax1, ax1_twin, ax2, ax2_twin, ax3, ax3_twin]:
         ax.grid(True, which='major', axis='both', linestyle='-', linewidth=0.6, alpha=0.25)
         ax.grid(True, which='minor', axis='both', linestyle=':', linewidth=0.4, alpha=0.15)
@@ -1066,47 +1029,16 @@ def plot_auc_vs_cluster_separation(X_csp, X_reduced, y_label, days_labels, clf_l
                 fontsize=13, fontweight='bold',
                 clip_on=False)   
 
-    # Adjust layout and save
-    fig.tight_layout()  # Adjust the tight_layout to leave space for title
-    filename = f'AUC vs Variance in {dim}D {reducer} space_Test_Day_{start_test_day}_to_{end_test_day}.jpg'
-    full_path = os.path.join(directory, filename)
-    plt.savefig(full_path, bbox_inches='tight', dpi=300)
-
+    if directory != 'None':
+        filename = f'_AUC vs Variance in {dim}D {reducer} space_Test_Day_{adjusted_start_day}_to_{adjusted_end_day}.jpg'
+        full_path = os.path.join(directory, filename)
+        plt.savefig(full_path, bbox_inches='tight', dpi=300)
     plt.close()
 
     # Create a figure with three subplots
     fig, (ax1, ax2, ax3) = plt.subplots(1, 3, figsize=(18, 6), sharey=True)
 
-    # # First subplot: Inter-cluster distance vs accuracy
-    # ax1.scatter(inter_variances, aucs, c='r', label=f"Inter-Cluster Distance (r={corr_auc_inter:.2f})", marker='o')
-    # ax1.set_title('ROC AUC vs. Inter-Cluster Distance')
-    # ax1.set_xlabel('Inter-Cluster Distance')
-    # ax1.set_ylabel('ROC AUC')
-    # ax1.legend(loc='lower right')
-    # ax1.grid(True)
-
-    # # Second subplot: Intra-cluster idle distance vs accuracy
-    # ax2.scatter(intra_variances_idle, aucs, c='g', label=f'Idle (r={corr_auc_intra_idle:.2f})', marker='o')
-    # ax2.set_title('ROC AUC vs. Intra-Cluster Idle Variance')
-    # ax2.set_xlabel('Intra-Cluster Variance (Idle)')
-    # ax2.legend(loc='lower right')
-    # ax2.grid(True)
-
-    # # Third subplot: Intra-cluster motor imagery distance vs accuracy
-    # ax3.scatter(intra_variances_motor, aucs, c='purple', label=f'Motor Imagery (r={corr_auc_intra_motor:.2f})', marker='o')
-    # ax3.set_title('ROC AUC vs. Intra-Cluster Motor Imagery Variance')
-    # ax3.set_xlabel('Intra-Cluster Variance (Motor Imagery)')
-    # ax3.legend(loc='lower right')
-    # ax3.grid(True)
-
-    # # Adjust layout to ensure everything fits well
-    # plt.tight_layout()
-    # new_filename = f'Correlation Analysis_{filename}'
-    # full_path = os.path.join(directory, new_filename)
-    # plt.savefig(full_path)
-    # plt.close()
-
-    # Inter-cluster distance vs accuracy
+    # Inter-cluster distance vs aucs
     scatter_with_fit(
         ax1, inter_variances, aucs,
         color='tab:red',
@@ -1116,7 +1048,7 @@ def plot_auc_vs_cluster_separation(X_csp, X_reduced, y_label, days_labels, clf_l
         alpha_sig=0.05
     )
 
-    # Intra-cluster idle distance vs accuracy
+    # Intra-cluster idle distance vs aucs
     scatter_with_fit(
         ax2, intra_variances_idle, aucs,
         color='tab:green',
@@ -1126,7 +1058,7 @@ def plot_auc_vs_cluster_separation(X_csp, X_reduced, y_label, days_labels, clf_l
         alpha_sig=0.05
     )
 
-    # Intra-cluster motor imagery distance vs accuracy
+    # Intra-cluster motor imagery distance vs aucs
     scatter_with_fit(
         ax3, intra_variances_motor, aucs,
         color='tab:purple',
