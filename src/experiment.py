@@ -5,7 +5,7 @@ from loader_var import load_cached_variables
 
 # ─── Configuration ────────────────────────────────────────────────────────────
 # CHANGE THIS ID TO SWITCH SUBJECTS (201, 205, 206)
-CURRENT_SUB = '201'
+CURRENT_SUB = '206'
 
 # Base Paths
 BASE_PATH = r"C:/Users/owner/Desktop/Niv"
@@ -99,66 +99,50 @@ def main():
         (X_csp_features_scaled,    n_csp_cols, 'CSP')
     ]
 
-    print("Generating Cluster Separation Plots...")
-    for features, dim, reducer in plot_configs:
-        visualizations.plot_auc_vs_cluster_separation(
-            X_csp=X_csp_features_scaled,  # Pass full CSP for AUC
-            X_reduced=features,           # Pass reduced for Separation
-            y_label=y_label, 
-            days_labels=days_label, 
-            clf_loaded=clf_loaded,        # Needed for LDA
-            start_test_day=start_test_day, 
-            end_test_day=end_test_day,
-            dim=dim, 
-            reducer=reducer, 
-            # Pass adjustments from config
-            label_offset=sub_config['label_offset'],
-            start_adj=sub_config['start_adj'],
-            end_adj=sub_config['end_adj'],
-            directory=save_dir
-        )
+    # print("Generating Cluster Separation Plots...")
+    # for features, dim, reducer in plot_configs:
+    #     visualizations.plot_auc_vs_cluster_separation(
+    #         X_csp=X_csp_features_scaled,  # Pass full CSP for AUC
+    #         X_reduced=features,           # Pass reduced for Separation
+    #         y_label=y_label, 
+    #         days_labels=days_label, 
+    #         clf_loaded=clf_loaded,        # Needed for LDA
+    #         start_test_day=start_test_day, 
+    #         end_test_day=end_test_day,
+    #         dim=dim, 
+    #         reducer=reducer, 
+    #         # Pass adjustments from config
+    #         label_offset=sub_config['label_offset'],
+    #         start_adj=sub_config['start_adj'],
+    #         end_adj=sub_config['end_adj'],
+    #         directory=save_dir
+    #     )
 
-    # ─── 4) Variance‐vs‐accuracy smoothing ──────────────────────────────────────
+    # # ─── 4) Variance‐vs‐accuracy smoothing ──────────────────────────────────────
+    # print("Generating SMOOTHED Cluster Separation Plots...")
 
-    # visualizations.plot_auc_vs_cluster_separation_smoothed(
-    #       X_csp_features_scaled,X_csp_features_scaled_2d,
-    #       y_label, days_label, clf_loaded,
-    #       start_test_day,end_test_day, dim=2,directory=save_dir)
 
-    # visualizations.plot_auc_vs_cluster_separation_smoothed(
-    #     X_csp_features_scaled, X_pca_features_2D,
-    #     y_label, days_label, clf_loaded,
-    #     start_test_day, end_test_day,
-    #     dim=2, reducer='PCA',directory=save_dir
-    # )
+    # for features, dim, reducer in plot_configs:
+    #         visualizations.plot_auc_vs_cluster_separation(
+    #             X_csp=X_csp_features_scaled,
+    #             X_reduced=features,
+    #             y_label=y_label, 
+    #             days_labels=days_label, 
+    #             clf_loaded=clf_loaded,
+    #             start_test_day=start_test_day, 
+    #             end_test_day=end_test_day,
+    #             dim=dim, 
+    #             reducer=reducer,
+    #             # Adjustments
+    #             label_offset=sub_config['label_offset'],
+    #             start_adj=sub_config['start_adj'],
+    #             end_adj=sub_config['end_adj'],
+    #             # SMOOTHING ENABLED
+    #             smooth=True,
+    #             window=sub_config['overlap'], # Using the window size from config (e.g. 10 or 5)
+    #             directory=save_dir
+    #         )
 
-    # visualizations.plot_auc_vs_cluster_separation_smoothed(
-    #     X_csp_features_scaled,X_umap_features_2D,
-    #     y_label, days_label, clf_loaded,
-    #     start_test_day,end_test_day, 
-    #     dim=2, reducer='UMAP',directory=save_dir
-    # )
-
-    # visualizations.plot_auc_vs_cluster_separation_smoothed(
-    #     X_csp_features_scaled,X_pca_features_3D,
-    #     y_label, days_label, clf_loaded,
-    #     start_test_day,end_test_day,
-    #     dim=3, reducer='PCA',directory=save_dir
-    # )
-
-    # visualizations.plot_auc_vs_cluster_separation_smoothed(
-    #     X_csp_features_scaled,X_umap_features_3D,
-    #     y_label, days_label, clf_loaded,
-    #     start_test_day,end_test_day,
-    #     dim=3, reducer='UMAP',directory=save_dir
-    # )
-
-    # visualizations.plot_auc_vs_cluster_separation_smoothed(
-    #     X_csp_features_scaled,X_csp_features_scaled,
-    #     y_label, days_label, clf_loaded,
-    #     start_test_day,end_test_day, 
-    #     directory=save_dir
-    # )
 
     # ─── 4) Variance‐vs‐accuracy smoothing ──────────────────────────────────────
 
