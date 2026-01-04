@@ -1849,8 +1849,16 @@ def plot_accuracy_vs_variances_smoothed(unique_days, accuracies, inter_variances
 
     return  smoothed_accuracies_inter,  smoothed_inter_variances, smoothed_accuracies_intra_idle, smoothed_intra_variances_idle,  smoothed_accuracies_intra_motor,smoothed_intra_variances_motor
 
+    
+
+
 def plot_auc_vs_variances_smoothed(unique_days, auc_scores, inter_variances, intra_variances_idle, intra_variances_motor,
-                                    start_test_day, end_test_day, directory, min_window=2, max_window=15):
+                                    start_test_day, end_test_day, directory, min_window=2, max_window=15, label_offset=0, start_adj=0, end_adj=0):
+    
+    # Calculate adjusted days for the title
+    adj_start = start_test_day + start_adj
+    adj_end = end_test_day + end_adj
+    adj_unique_days = unique_days[(unique_days >= adj_start) & (unique_days < adj_end)]
     # Find the best window size for inter- and intra-cluster variances
     best_window_size_inter, best_corr_auc_inter, p_value_inter = utils.find_best_window_size(auc_scores, inter_variances, min_window, max_window)
     best_window_size_intra_idle, best_corr_auc_intra_idle, p_value_intra_idle = utils.find_best_window_size(auc_scores, intra_variances_idle, min_window, max_window)
@@ -1860,64 +1868,61 @@ def plot_auc_vs_variances_smoothed(unique_days, auc_scores, inter_variances, int
     print(f"Best window for intra-cluster MI: {best_window_size_intra_motor}, Corr: {best_corr_auc_intra_motor:.4f}")
     print(f"Best window for intra-cluster IDLE: {best_window_size_intra_idle}, Corr: {best_corr_auc_intra_idle:.4f}")
 
-    # Apply smoothing
-    smoothed_auc_inter = np.convolve(auc_scores, np.ones(best_window_size_inter)/best_window_size_inter, mode='valid')
-    smoothed_inter_variances = np.convolve(inter_variances, np.ones(best_window_size_inter)/best_window_size_inter, mode='valid')
 
-    smoothed_auc_idle = np.convolve(auc_scores, np.ones(best_window_size_intra_idle)/best_window_size_intra_idle, mode='valid')
-    smoothed_intra_variances_idle = np.convolve(intra_variances_idle, np.ones(best_window_size_intra_idle)/best_window_size_intra_idle, mode='valid')
+    def smooth(data, win):
+        return np.convolve(data, np.ones(win)/win, mode='valid')
+    
+    smoothed_auc_inter = smooth(auc_scores, best_window_size_inter)
+    smoothed_inter_variances = smooth(inter_variances, best_window_size_inter)
 
-    smoothed_auc_motor = np.convolve(auc_scores, np.ones(best_window_size_intra_motor)/best_window_size_intra_motor, mode='valid')
-    smoothed_intra_variances_motor = np.convolve(intra_variances_motor, np.ones(best_window_size_intra_motor)/best_window_size_intra_motor, mode='valid')
+    smoothed_auc_idle = smooth(auc_scores, best_window_size_intra_idle)
+    smoothed_intra_variances_idle = smooth(intra_variances_idle, best_window_size_intra_idle)
 
-    # Plot: AUC vs Inter-Cluster Distance
+    smoothed_auc_motor = smooth(auc_scores, best_window_size_intra_motor)
+    smoothed_intra_variances_motor = smooth(intra_variances_motor, best_window_size_intra_motor)
+
     fig, (ax1, ax2, ax3) = plt.subplots(3, 1, figsize=(12, 12), constrained_layout=True)
+# Helper for plots
+    def plot_panel(ax, auc_data, metric_data, metric_name, color, corr, win):
+        # Adjust days to match the valid convolution length
+        plot_days = unique_days[:len(auc_data)]
+        
+        ax.set_xlabel('Days')
+        ax.set_ylabel('AUC', color='tab:blue')
+        ax.plot(plot_days, auc_data, marker='o', color='tab:blue')
+        ax.tick_params(axis='y', labelcolor='tab:blue')
+        
+        ax_twin = ax.twinx()
+        ax_twin.set_ylabel(metric_name, color=color)
+        ax_twin.plot(plot_days, metric_data, marker='x', color=color)
+        ax_twin.tick_params(axis='y', labelcolor=color)
+        metric_clean = metric_name.split('[')[0]
+        ax.set_title(f"AUC vs {metric_clean} (Days {adj_start}-{adj_end})")
+        ax_twin.legend([f"{metric_clean} (r={corr:.2f}, w={win})"], loc='upper right')
+        
+        # --- Handle Offsets ---
+        if label_offset == 30: # Sub 201
+             xticks = ax.get_xticks().astype(int)
+             ax.set_xticklabels(xticks + label_offset)
+        else: # Sub 205/206
+             ax.set_xticks(plot_days) 
+             ax.set_xticklabels(plot_days + label_offset)
 
-    ax1.set_xlabel('Days')
-    ax1.set_ylabel('AUC', color='tab:blue')
-    ax1.plot(unique_days[:len(smoothed_auc_inter)], smoothed_auc_inter, marker='o', color='tab:blue')
-    ax1.tick_params(axis='y', labelcolor='tab:blue')
-    ax1_twin = ax1.twinx()
-    ax1_twin.set_ylabel("Inter-Cluster [Cohen's d]", color='tab:red')
-    ax1_twin.plot(unique_days[:len(smoothed_inter_variances)], smoothed_inter_variances, marker='x', color='tab:red')
-    ax1_twin.tick_params(axis='y', labelcolor='tab:red')
-    ax1.set_title(f"AUC vs Inter-Cluster Distance ({start_test_day}-{end_test_day-1})")
-    ax1_twin.legend([f"Inter-Cluster (corr: {best_corr_auc_inter:.2f}, window: {best_window_size_inter})"], loc='upper right')
 
-    # AUC vs Intra-Cluster Idle
-    ax2.set_xlabel('Days')
-    ax2.set_ylabel('AUC', color='tab:blue')
-    ax2.plot(unique_days[:len(smoothed_auc_idle)], smoothed_auc_idle, marker='o', color='tab:blue')
-    ax2.tick_params(axis='y', labelcolor='tab:blue')
-    ax2_twin = ax2.twinx()
-    ax2_twin.set_ylabel('Intra-Cluster Idle [std]', color='tab:green')
-    ax2_twin.plot(unique_days[:len(smoothed_intra_variances_idle)], smoothed_intra_variances_idle, marker='x', color='tab:green')
-    ax2_twin.tick_params(axis='y', labelcolor='tab:green')
-    ax2.set_title(f"AUC vs Intra-Cluster Idle Variance ({start_test_day}-{end_test_day-1})")
-    ax2_twin.legend([f"Intra-Cluster Idle (corr: {best_corr_auc_intra_idle:.2f}, window: {best_window_size_intra_idle})"], loc='upper right')
 
-    # AUC vs Intra-Cluster Motor Imagery
-    ax3.set_xlabel('Days')
-    ax3.set_ylabel('AUC', color='tab:blue')
-    ax3.plot(unique_days[:len(smoothed_auc_motor)], smoothed_auc_motor, marker='o', color='tab:blue')
-    ax3.tick_params(axis='y', labelcolor='tab:blue')
-    ax3_twin = ax3.twinx()
-    ax3_twin.set_ylabel('Intra-Cluster Motor Imagery [std]', color='tab:purple')
-    ax3_twin.plot(unique_days[:len(smoothed_intra_variances_motor)], smoothed_intra_variances_motor, marker='x', color='tab:purple')
-    ax3_twin.tick_params(axis='y', labelcolor='tab:purple')
-    ax3.set_title(f"AUC vs Intra-Cluster Motor Imagery Variance ({start_test_day}-{end_test_day-1})")
-    ax3_twin.legend([f"Intra-Cluster Motor Imagery (corr: {best_corr_auc_intra_motor:.2f}, window: {best_window_size_intra_motor})"], loc='upper right')
-
-    for ax in [ax1, ax2, ax3]:
-        xticks = ax.get_xticks().astype(int)
-        ax.set_xticklabels(xticks + 30)
-
+    # Generate Panels
+    plot_panel(ax1, smoothed_auc_inter, smoothed_inter_variances, "Inter-Cluster [Cohen's d]", 'tab:red', best_corr_auc_inter, best_window_size_inter)
+    plot_panel(ax2, smoothed_auc_idle, smoothed_intra_variances_idle, 'Intra-Cluster Idle [std]', 'tab:green', best_corr_auc_intra_idle, best_window_size_intra_idle)
+    plot_panel(ax3, smoothed_auc_motor, smoothed_intra_variances_motor, 'Intra-Cluster Motor Imagery [std]', 'tab:purple', best_corr_auc_intra_motor, best_window_size_intra_motor)
     plt.tight_layout()
-    fname = f'AUC_vs_Variances_Days_{start_test_day}_to_inter{best_window_size_inter}_intraID{best_window_size_intra_idle}_intraMI{best_window_size_intra_motor}.jpg'
-    plt.savefig(os.path.join(directory, fname), dpi=300)
+
+    if directory:
+        fname = f'AUC_vs_Variances_Days_{adj_start}_to_{adj_end}_inter{best_window_size_inter}_intraID{best_window_size_intra_idle}_intraMI{best_window_size_intra_motor}.jpg'
+        plt.savefig(os.path.join(directory, fname), dpi=300)
     plt.close()
 
-    # Correlation scatter plots
+
+
     fig, (ax1, ax2, ax3) = plt.subplots(1, 3, figsize=(18, 6), sharey=True)
     ax1.scatter(smoothed_inter_variances, smoothed_auc_inter, c='b', label=f'Inter (r={best_corr_auc_inter:.2f})', marker='o')
     ax1.set_title('AUC vs. Inter-Cluster Variance')
@@ -1939,8 +1944,9 @@ def plot_auc_vs_variances_smoothed(unique_days, auc_scores, inter_variances, int
     ax3.legend()
 
     plt.tight_layout()
-    fname = f'AUC_correlation_analysis_inter{best_window_size_inter}_idle{best_window_size_intra_idle}_motor{best_window_size_intra_motor}.jpg'
-    plt.savefig(os.path.join(directory, fname), dpi=300)
+    if directory:
+        fname = f'AUC_correlation_analysis_inter{best_window_size_inter}_idle{best_window_size_intra_idle}_motor{best_window_size_intra_motor}.jpg'
+        plt.savefig(os.path.join(directory, fname), dpi=300)
     plt.close()
 
     return  smoothed_auc_inter, smoothed_inter_variances, smoothed_auc_idle, smoothed_intra_variances_idle,  smoothed_auc_motor ,smoothed_intra_variances_motor 

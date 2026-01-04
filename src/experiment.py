@@ -5,7 +5,7 @@ from loader_var import load_cached_variables
 
 # ─── Configuration ────────────────────────────────────────────────────────────
 # CHANGE THIS ID TO SWITCH SUBJECTS (201, 205, 206)
-CURRENT_SUB = '206'
+CURRENT_SUB = '201'
 
 # Base Paths
 BASE_PATH = r"C:/Users/owner/Desktop/Niv"
@@ -16,18 +16,21 @@ FIGURES_PATH = os.path.join(BASE_PATH, "Niv_github/_Figures")
 SUBJECT_CONFIG = {
     '201': { 
         'window_size': 10, 'overlap': 5, 'window_dir': "10_day_window",
+        'window_smooth': 5,
         'label_offset': 30,      # "label_days = 30"
         'start_adj': 0,          # No change to start_test_day
         'end_adj': 0             # No change to end_test_day
     },
     '205': { 
         'window_size': 5,  'overlap': 0, 'window_dir': "10_day_window",
+        'window_smooth': 0,
         'label_offset': 3,       # "label_days = unique_days + 3"
         'start_adj': 1,          # "start_test_day += 1"
         'end_adj': -1            # "end_test_day -= 1"
     },
     '206': { 
         'window_size': 6,  'overlap': 0, 'window_dir': "10_day_window",
+        'window_smooth': 0,
         'label_offset': 3,       # "label_days = unique_days + 3"
         'start_adj': 1,          # "start_test_day += 1"
         'end_adj': 0             # No change to end_test_day
@@ -120,8 +123,6 @@ def main():
 
     # # ─── 4) Variance‐vs‐accuracy smoothing ──────────────────────────────────────
     # print("Generating SMOOTHED Cluster Separation Plots...")
-
-
     # for features, dim, reducer in plot_configs:
     #         visualizations.plot_auc_vs_cluster_separation(
     #             X_csp=X_csp_features_scaled,
@@ -139,28 +140,39 @@ def main():
     #             end_adj=sub_config['end_adj'],
     #             # SMOOTHING ENABLED
     #             smooth=True,
-    #             window=sub_config['overlap'], # Using the window size from config (e.g. 10 or 5)
+    #             window=sub_config['overlap'], 
     #             directory=save_dir
     #         )
 
 
-    # ─── 4) Variance‐vs‐accuracy smoothing ──────────────────────────────────────
+    # ─── 5) Variance‐vs‐accuracy smoothing ──────────────────────────────────────
+    print("Running Smoothed Variance Analysis...")
 
-    # # smoothed over windows of varying size CSP6D trying to find the best window (5,14,15)
-    # smoothed_auc_inter, smoothed_inter_variances, smoothed_auc_idle, smoothed_intra_variances_idle,  smoothed_auc_motor ,smoothed_intra_variances_motor =  visualizations.plot_auc_vs_variances_smoothed(
-    #     unique_days, auc_scores,
-    #     inter_variances, intra_variances_idle, intra_variances_motor,
-    #     start_test_day, end_test_day, save_dir, min_window=2, max_window=15) # smoothed
+    # A) Search for best window (2-15 results: (5,14,15), inter/idle/motor, in original space
+    visualizations.plot_auc_vs_variances_smoothed(
+        unique_days, auc_scores,
+        inter_variances, intra_variances_idle, intra_variances_motor,
+        start_test_day, end_test_day, 
+        directory=save_dir, 
+        min_window=2, max_window=15,
+        label_offset=sub_config['label_offset'],
+        start_adj=sub_config['start_adj'], 
+        end_adj=sub_config['end_adj']      
+    )
+
+    # B) Fixed window from Config
+    fixed_win = sub_config['window_smooth'] #decideed by inter
     
-
-
-    # # fixed window (e.g. best inter‐correlation)
-    # smoothed_auc_inter, smoothed_inter_variances, smoothed_auc_idle, smoothed_intra_variances_idle,  smoothed_auc_motor ,smoothed_intra_variances_motor = visualizations.plot_auc_vs_variances_smoothed(
-    #     unique_days, auc_scores,
-    #     inter_variances, intra_variances_idle, intra_variances_motor,
-    #     start_test_day, end_test_day, save_dir, min_window=5, max_window=5) 
-
-    # visualizations.main_graph(unique_days, auc_scores, inter_variances,start_test_day, end_test_day, save_dir, min_window=5, max_window=5)
+    visualizations.plot_auc_vs_variances_smoothed(
+        unique_days, auc_scores,
+        inter_variances, intra_variances_idle, intra_variances_motor,
+        start_test_day, end_test_day, 
+        directory=save_dir, 
+        min_window=fixed_win, max_window=fixed_win,
+        label_offset=sub_config['label_offset'],
+        start_adj=sub_config['start_adj'], 
+        end_adj=sub_config['end_adj']      
+    )
 
     # # ─── 5) Delta‐matrix analyses ─────────────────────────
     
@@ -236,6 +248,7 @@ def main():
 
     # visualizations.consistency_of_signals(X_csp_features_scaled, days_label)
 
+    # visualizations.main_graph(unique_days, auc_scores, inter_variances,start_test_day, end_test_day, save_dir, min_window=5, max_window=5)
 
 
 
