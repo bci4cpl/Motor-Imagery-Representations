@@ -24,6 +24,21 @@ mode: "test" # if change to train, please create a new folder for the saved file
 subjects:
   - id: "201"
     best_components: 6
+
+
+    vis_params:
+      window_dir: "10_day_window"
+      window_size: 10
+      overlap: 5
+      window_smooth: 5
+      label_offset: 30 
+      delta_offset: 30
+      start_adj: 0
+      end_adj: 0
+      smooth: True
+      start_day: 1
+
+
     data:
       sub: "201"
       eyes_state: "CC"
@@ -62,10 +77,24 @@ subjects:
       train: [0, 30]
       test:  [30, 133]
 
+    
 
 
   - id: "205"
     best_components: 6
+
+    vis_params:
+      window_dir: "10_day_window"
+      window_size: 5
+      overlap: 0
+      window_smooth: 0
+      label_offset: 3
+      delta_offset: 4
+      start_adj: 1
+      end_adj: -1
+      smooth: False
+      start_day: 1
+
     data:
       sub: "205"
       eyes_state: "CC"
@@ -108,6 +137,19 @@ subjects:
 
   - id: "206"
     best_components: 10
+
+    vis_params:
+      window_dir: "10_day_window"
+      window_size: 6
+      overlap: 0
+      window_smooth: 0
+      label_offset: 3
+      delta_offset: 4
+      start_adj: 1
+      end_adj: 0
+      smooth: False
+      start_day: 1
+
     data:
       sub: "206"
       eyes_state: "CC"

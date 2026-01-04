@@ -1,5 +1,6 @@
 import os
 import visualizations
+import yaml
 import numpy as np
 from loader_var import load_cached_variables
 
@@ -11,40 +12,19 @@ CURRENT_SUB = '201'
 BASE_PATH = r"C:/Users/owner/Desktop/Niv"
 CACHE_PATH = os.path.join(BASE_PATH, "Motor imagery skill/cache")
 FIGURES_PATH = os.path.join(BASE_PATH, "Niv_github/_Figures") 
+yaml_path = os.path.join(BASE_PATH,"Niv_github\\Motor-Imagery-Representations\\src\\config.yaml")
 
-# Subject-specific settings
-SUBJECT_CONFIG = {
-    '201': { 
-        'window_size': 10, 'overlap': 5, 'window_dir': "10_day_window",
-        'window_smooth': 5,
-        'label_offset': 30,      # "label_days = 30"
-        'delta_offset':30,      # "delta_day = day + 1"
-        'start_adj': 0,          # No change to start_test_day
-        'end_adj': 0,             # No change to end_test_day
-        'smooth': True,
-        'start_day':1
-    },
-    '205': { 
-        'window_size': 5,  'overlap': 0, 'window_dir': "10_day_window",
-        'window_smooth': 0,
-        'label_offset': 3,       # "label_days = unique_days + 3"
-        'delta_offset':4,        # "delta_day = day + 1"
-        'start_adj': 1,          # "start_test_day += 1"
-        'end_adj': -1,            # "end_test_day -= 1"
-        'smooth': False,
-        'start_day':1
-    },
-    '206': { 
-        'window_size': 6,  'overlap': 0, 'window_dir': "10_day_window",
-        'window_smooth': 0,
-        'label_offset': 3,       # "label_days = unique_days + 3"
-        'delta_offset':4,        # "delta_day = day + 1"
-        'start_adj': 1,          # "start_test_day += 1"
-        'end_adj': 0,             # No change to end_test_day
-        'smooth': False,
-        'start_day':1
+if os.path.exists(yaml_path):
+    with open(yaml_path, 'r') as f:
+        full_yaml = yaml.safe_load(f)
+    
+    SUBJECT_CONFIG = {
+        sub['id']: sub['vis_params'] 
+        for sub in full_yaml['subjects'] 
+        if 'vis_params' in sub
     }
-}
+else:
+    raise FileNotFoundError(f"Could not find {yaml_path}. Please create it.")
 
 sub_config = SUBJECT_CONFIG[CURRENT_SUB]
 
