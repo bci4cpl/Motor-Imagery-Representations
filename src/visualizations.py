@@ -545,21 +545,21 @@ def plot_sliding_windows(days_label, y_label, clf, X_csp_scaled, X_csp_2d, X_pca
         )
 
         # # 3) Accuracy vs cluster separation
-        # for (Xr, dim, red) in [ 
-        #     (X_win, 2, 'CSP'),
-        #     (X_win, 2, 'PCA'),
-        #     (X_win, 3, 'PCA'),
-        #     (X_win, 2, 'UMAP'),
-        #     (X_win, 3, 'UMAP'),
-        # ]:
-        #     # select the matching reduced array
-        #     Xred = {
-        #         ('CSP',2): X2d_win,
-        #         ('PCA',2): P2d_win,
-        #         ('PCA',3): P3d_win,
-        #         ('UMAP',2): U2d_win,
-        #         ('UMAP',3): U3d_win
-        #     }[(red, dim)]
+        for (Xr, dim, red) in [ 
+            (X_win, 2, 'CSP'),
+            (X_win, 2, 'PCA'),
+            (X_win, 3, 'PCA'),
+            (X_win, 2, 'UMAP'),
+            (X_win, 3, 'UMAP'),
+        ]:
+            # select the matching reduced array
+            Xred = {
+                ('CSP',2): X2d_win,
+                ('PCA',2): P2d_win,
+                ('PCA',3): P3d_win,
+                ('UMAP',2): U2d_win,
+                ('UMAP',3): U3d_win
+            }[(red, dim)]
 
         #     corr_accuracy_inter, corr_accuracy_intra_idle, corr_accuracy_intra_motor, corr_accuracy_silhouette = plot_accuracy_vs_cluster_separation(
         #         Xr, Xred,
@@ -569,56 +569,56 @@ def plot_sliding_windows(days_label, y_label, clf, X_csp_scaled, X_csp_2d, X_pca
         #         directory=day_folder_path
         #     )
 
-        #     utils.log_metric_correlations(
-        #         metric_name='accuracy',
-        #         directory=save_dir_win,
-        #         start_test_day=start_day,
-        #         end_test_day=end_day,
-        #         reducer=red,
-        #         dim=dim,
-        #         corr_inter=corr_accuracy_inter,
-        #         corr_intra_idle=corr_accuracy_intra_idle,
-        #         corr_intra_motor=corr_accuracy_intra_motor
-        #     )
-            
-        #     corr_auc_inter, corr_auc_intra_idle, corr_auc_intra_motor = plot_auc_vs_cluster_separation(
-        #         Xr, Xred,
-        #         y_win, days_win, clf,
-        #         start_day, end_day,
-        #         dim=dim, reducer=red,
-        #         directory=day_folder_path
-        #     )
-
-        #     utils.log_metric_correlations(
-        #         metric_name='AUC',
-        #         directory=save_dir_win,
-        #         start_test_day=start_day,
-        #         end_test_day=end_day,
-        #         reducer=red,
-        #         dim=dim,
-        #         corr_inter=corr_auc_inter,
-        #         corr_intra_idle=corr_auc_intra_idle,
-        #         corr_intra_motor=corr_auc_intra_motor
-        #     )
-
-
-
-        # corr_accuracy_inter, corr_accuracy_intra_idle, corr_accuracy_intra_motor= plot_accuracy_vs_cluster_separation(
-        #         X_win,X_win, y_win, days_win, clf,
-        #         start_day, end_day,
-        #         directory=day_folder_path)
-        
         # utils.log_metric_correlations(
-        #         metric_name='accuracy',
-        #         directory=save_dir_win,
-        #         start_test_day=start_day,
-        #         end_test_day=end_day,
-        #         reducer='CSP',
-        #         dim=6,
-        #         corr_inter=corr_accuracy_inter,
-        #         corr_intra_idle=corr_accuracy_intra_idle,
-        #         corr_intra_motor=corr_accuracy_intra_motor
-        #     )
+        #     metric_name='accuracy',
+        #     directory=save_dir_win,
+        #     start_test_day=start_day,
+        #     end_test_day=end_day,
+        #     reducer=red,
+        #     dim=dim,
+        #     corr_inter=corr_accuracy_inter,
+        #     corr_intra_idle=corr_accuracy_intra_idle,
+        #     corr_intra_motor=corr_accuracy_intra_motor
+        # )
+            
+            corr_auc_inter, corr_auc_intra_idle, corr_auc_intra_motor = plot_auc_vs_cluster_separation(
+                Xr, Xred,
+                y_win, days_win, clf,
+                start_day, end_day,
+                dim=dim, reducer=red,
+                directory=day_folder_path
+            )
+
+            utils.log_metric_correlations(
+                metric_name='AUC',
+                directory=save_dir_win,
+                start_test_day=start_day,
+                end_test_day=end_day,
+                reducer=red,
+                dim=dim,
+                corr_inter=corr_auc_inter,
+                corr_intra_idle=corr_auc_intra_idle,
+                corr_intra_motor=corr_auc_intra_motor
+            )
+
+
+
+        corr_accuracy_inter, corr_accuracy_intra_idle, corr_accuracy_intra_motor= plot_accuracy_vs_cluster_separation(
+                X_win,X_win, y_win, days_win, clf,
+                start_day, end_day,
+                directory=day_folder_path)
+        
+        utils.log_metric_correlations(
+                metric_name='accuracy',
+                directory=save_dir_win,
+                start_test_day=start_day,
+                end_test_day=end_day,
+                reducer='CSP',
+                dim=6,
+                corr_inter=corr_accuracy_inter,
+                corr_intra_idle=corr_accuracy_intra_idle,
+                corr_intra_motor=corr_accuracy_intra_motor
+            )
 
 
         # corr_auc_inter, corr_auc_intra_idle, corr_auc_intra_motor = plot_auc_vs_cluster_separation(X_win,X_win, y_win, days_win, clf,

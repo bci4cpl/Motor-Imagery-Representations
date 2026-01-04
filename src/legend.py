@@ -1,0 +1,101 @@
+# # ───  Analysis that I didnt use ──────────────────────────────────────
+    # original_accuracy, t_max, p_value,significant_days = utils.t_max_permutation_test(X_csp_features_scaled,y_label,days_label,clf_loaded,save_dir)
+
+
+    # avg_mu_power, avg_beta_power = utils.analyze_psd_over_time(denoised_signal_test_centered, days_label, unique_days, save_dir)
+    # metrics = {'Accuracy': accuracies,'Inter-Dist': inter_variances, 'Intra-Idle': intra_variances_idle,'Intra-Motor': intra_variances_motor}
+    # bands = {'Mu Power': avg_mu_power,  'Beta Power': avg_beta_power }
+    
+    # results_t = utils.compare_early_vs_late_all(metrics_data=metrics, band_data=bands, early_end=34, late_start=-34,directory=save_dir) # compare first 34 days vs last 34 days
+    # results_anova = utils.compare_phases_all( metrics_data=metrics, band_data=bands, early_end=34, late_start=-34,  directory=save_dir) # compare 3 phases (early, intermediate, late)
+    # results_anova_cluster = utils.anova_cluster_distances(inter_variances, intra_variances_idle, intra_variances_motor,num_groups=10, directory=save_dir)
+
+    # visualizations.consistency_of_signals(X_csp_features_scaled, days_label)
+
+    # visualizations.main_graph(unique_days, auc_scores, inter_variances,start_test_day, end_test_day, save_dir, min_window=5, max_window=5)
+
+    # visualizations.track_centers(spaces,y_label,days_label, save_dir_centers)
+
+    # visualizations.plot_multiple_day_2D_projection(X_pca_features_2D,y_label,days_label,start_test_day,end_test_day,reducer='PCA',directory=save_directory_fig) # relevant (visually) just for couple of days and not the entire dataset
+    # visualizations.plot_multiple_day_2D_projection(X_umap_features_2D,y_label,days_label,start_test_day,end_test_day,reducer='UMAP',directory=save_directory_fig)
+    # visualizations.plot_multiple_day_3D_projection(X_pca_features_3D, y_label, days_label,start_test_day,end_test_day, reducer='PCA',directory=save_directory_fig)
+    # visualizations.plot_multiple_day_3D_projection(X_umap_features_3D, y_label, days_label,start_test_day,end_test_day, reducer='UMAP',directory=save_directory_fig)
+    # best_filter_pair_indices, pair_scores = utils.evaluate_csp_filters(denoised_signal_test_centered,y_label,filters)
+    
+    # visualizations.sliding_window_metric_analysis(X_csp_features_scaled, spaces, y_label, days_label, clf_loaded,
+    #                                metric='AUC', window_size=sub_config['window_size'], dim_dict=dim_dict, directory=save_dir_trial_window)
+
+    # visualizations.track_centers(spaces,y_label,days_label, save_dir_centers)
+
+
+    # # ───  Similar Analysis for accuracy ──────────────────────────────────────
+
+
+    # visualizations.plot_accuracy_vs_cluster_separation(
+    #       X_csp_features_scaled,X_csp_features_scaled_2d,
+    #       y_label, days_label, clf_loaded,
+    #       start_test_day,end_test_day,dim=2,directory=save_dir)
+
+
+    # visualizations.plot_accuracy_vs_cluster_separation(
+    #     X_csp_features_scaled, X_pca_features_2D,
+    #     y_label, days_label, clf_loaded,
+    #     start_test_day, end_test_day,
+    #     dim=2, reducer='PCA',directory=save_dir
+    # )
+
+
+
+    # visualizations.plot_accuracy_vs_cluster_separation(
+    #     X_csp_features_scaled,X_umap_features_2D,
+    #     y_label, days_label, clf_loaded,
+    #     start_test_day,end_test_day,
+    #     dim=2, reducer='UMAP',directory=save_dir
+    # )
+    
+    # visualizations.plot_accuracy_vs_cluster_separation(
+    #     X_csp_features_scaled,X_pca_features_3D,
+    #     y_label, days_label, clf_loaded,
+    #     start_test_day,end_test_day,
+    #     dim=3, reducer='PCA',directory=save_dir
+    # )
+    
+    # visualizations.plot_accuracy_vs_cluster_separation(
+    #     X_csp_features_scaled,X_umap_features_3D,
+    #     y_label, days_label, clf_loaded,
+    #     start_test_day,end_test_day,
+    #     dim=3, reducer='UMAP',directory=save_dir
+    # )
+
+    # # also plot CSP-space separation (no dimensionality reduction)
+    # visualizations.plot_accuracy_vs_cluster_separation(
+    #     X_csp_features_scaled,X_csp_features_scaled,
+    #     y_label, days_label, clf_loaded,
+    #     start_test_day,end_test_day,dim=10,
+    #     directory=save_dir
+    # )
+
+    # visualizations.main_graph(unique_days, accuracies, inter_variances,start_test_day, end_test_day, save_dir, min_window=2, max_window=15)
+
+    # # smoothed over windows of varying size CSP6D trying to find the best window (5,14,15)
+    # smoothed_accuracies_inter, smoothed_inter_variances, smoothed_accuracies_intra_idle, smoothed_intra_variances_idle,  smoothed_accuracies_intra_motor,smoothed_intra_variances_motor  =  visualizations.plot_accuracy_vs_variances_smoothed(
+    #     unique_days, accuracies,
+    #     inter_variances, intra_variances_idle, intra_variances_motor,
+    #     start_test_day, end_test_day, save_dir, min_window=2, max_window=15) # smoothed
+    
+    # # fixed window (e.g. best inter‐correlation)
+    # smoothed_accuracies_inter, smoothed_inter_variances, smoothed_accuracies_intra_idle, smoothed_intra_variances_idle,  smoothed_accuracies_intra_motor,smoothed_intra_variances_motor  = visualizations.plot_accuracy_vs_variances_smoothed(
+    #     unique_days, accuracies,
+    #     inter_variances, intra_variances_idle, intra_variances_motor,
+    #     start_test_day, end_test_day, save_dir, min_window=5, max_window=5) 
+
+    # for i in range(2,16):
+    #     smoothed_auc_inter, smoothed_inter_variances, smoothed_auc_idle, smoothed_intra_variances_idle,  smoothed_auc_motor ,smoothed_intra_variances_motor =  visualizations.plot_auc_vs_variances_smoothed(
+    #     unique_days, auc_scores,
+    #     inter_variances, intra_variances_idle, intra_variances_motor,
+    #     start_test_day, end_test_day, save_dir, min_window=i, max_window=i) # smoothed
+
+    # delta_acc_matrix, delta_inter_var_matrix, delta_intra_var_matrix_idle, delta_intra_var_matrix_motor = visualizations.delta_acc_var(X_csp_features_scaled,y_label,days_label,clf_loaded,start_test_day,end_test_day,acc_smoothed, inter_smoothed, intra_idle_smoothed, intra_mi_smoothed,directory=save_dir) 
+    
+    # utils.analyze_csp_component_usage(clf_loaded, denoised_signal_test_centered, y_label, class_names=['Idle', 'MI'], plot_expected_vs_empirical=True)
+
