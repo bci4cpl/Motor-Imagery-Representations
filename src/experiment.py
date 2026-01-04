@@ -18,22 +18,28 @@ SUBJECT_CONFIG = {
         'window_size': 10, 'overlap': 5, 'window_dir': "10_day_window",
         'window_smooth': 5,
         'label_offset': 30,      # "label_days = 30"
+        'delta_offset':30,      # "delta_day = day + 1"
         'start_adj': 0,          # No change to start_test_day
-        'end_adj': 0             # No change to end_test_day
+        'end_adj': 0,             # No change to end_test_day
+        'smooth': True
     },
     '205': { 
         'window_size': 5,  'overlap': 0, 'window_dir': "10_day_window",
         'window_smooth': 0,
         'label_offset': 3,       # "label_days = unique_days + 3"
+        'delta_offset':4,        # "delta_day = day + 1"
         'start_adj': 1,          # "start_test_day += 1"
-        'end_adj': -1            # "end_test_day -= 1"
+        'end_adj': -1,            # "end_test_day -= 1"
+        'smooth': False
     },
     '206': { 
         'window_size': 6,  'overlap': 0, 'window_dir': "10_day_window",
         'window_smooth': 0,
         'label_offset': 3,       # "label_days = unique_days + 3"
+        'delta_offset':4,        # "delta_day = day + 1"
         'start_adj': 1,          # "start_test_day += 1"
-        'end_adj': 0             # No change to end_test_day
+        'end_adj': 0,             # No change to end_test_day
+        'smooth': False
     }
 }
 
@@ -139,45 +145,70 @@ def main():
     #             start_adj=sub_config['start_adj'],
     #             end_adj=sub_config['end_adj'],
     #             # SMOOTHING ENABLED
-    #             smooth=True,
+    #             smooth=sub_config['smooth'],
     #             window=sub_config['overlap'], 
     #             directory=save_dir
     #         )
 
 
     # ─── 5) Variance‐vs‐accuracy smoothing ──────────────────────────────────────
-    print("Running Smoothed Variance Analysis...")
+    # print("Running Smoothed Variance Analysis...")
 
-    # A) Search for best window (2-15 results: (5,14,15), inter/idle/motor, in original space
-    visualizations.plot_auc_vs_variances_smoothed(
-        unique_days, auc_scores,
-        inter_variances, intra_variances_idle, intra_variances_motor,
-        start_test_day, end_test_day, 
-        directory=save_dir, 
-        min_window=2, max_window=15,
-        label_offset=sub_config['label_offset'],
-        start_adj=sub_config['start_adj'], 
-        end_adj=sub_config['end_adj']      
-    )
+    # # A) Search for best window (2-15 results: (5,14,15), inter/idle/motor, in original space
+    # visualizations.plot_auc_vs_variances_smoothed(
+    #     unique_days, auc_scores,
+    #     inter_variances, intra_variances_idle, intra_variances_motor,
+    #     start_test_day, end_test_day, 
+    #     directory=save_dir, 
+    #     min_window=2, max_window=15,
+    #     label_offset=sub_config['label_offset'],
+    #     start_adj=sub_config['start_adj'], 
+    #     end_adj=sub_config['end_adj']      
+    # )
 
-    # B) Fixed window from Config
-    fixed_win = sub_config['window_smooth'] #decideed by inter
+    # # B) Fixed window from Config
+    # fixed_win = sub_config['window_smooth'] #decideed by inter
     
-    visualizations.plot_auc_vs_variances_smoothed(
-        unique_days, auc_scores,
-        inter_variances, intra_variances_idle, intra_variances_motor,
-        start_test_day, end_test_day, 
-        directory=save_dir, 
-        min_window=fixed_win, max_window=fixed_win,
-        label_offset=sub_config['label_offset'],
-        start_adj=sub_config['start_adj'], 
-        end_adj=sub_config['end_adj']      
-    )
+    # visualizations.plot_auc_vs_variances_smoothed(
+    #     unique_days, auc_scores,
+    #     inter_variances, intra_variances_idle, intra_variances_motor,
+    #     start_test_day, end_test_day, 
+    #     directory=save_dir, 
+    #     min_window=fixed_win, max_window=fixed_win,
+    #     label_offset=sub_config['label_offset'],
+    #     start_adj=sub_config['start_adj'], 
+    #     end_adj=sub_config['end_adj']      
+    # )
 
     # # ─── 5) Delta‐matrix analyses ─────────────────────────
+    # print("Generating Delta Matrix analysis...")
     
-    delta_auc_matrix, delta_inter_var_matrix, delta_intra_var_matrix_idle, delta_intra_var_matrix_motor = visualizations.delta_auc_var(X_csp_features_scaled,y_label,days_label,clf_loaded,start_test_day,end_test_day, smooth=False, directory=save_dir) 
-    visualizations.delta_vs_raw(X_csp_features_scaled,y_label,days_label,clf_loaded,start_test_day,end_test_day, smooth=False, directory=save_dir) 
+    # delta_auc_matrix, delta_inter_var_matrix, delta_intra_var_matrix_idle, delta_intra_var_matrix_motor = visualizations.delta_auc_var(
+    #     X_csp_features_scaled,
+    #     y_label,
+    #     days_label,
+    #     clf_loaded,
+    #     start_test_day,
+    #     end_test_day,
+    #     smooth=sub_config['smooth'],
+    #     directory=save_dir,
+    #     delta_offset=sub_config['delta_offset'] 
+    # ) 
+    
+    # visualizations.delta_vs_raw(
+    #     X_csp_features_scaled,
+    #     y_label,
+    #     days_label,
+    #     clf_loaded,
+    #     start_test_day,
+    #     end_test_day,
+    #     smooth=sub_config['smooth'], 
+    #     directory=save_dir,
+    #     delta_offset=sub_config['delta_offset']
+    # )
+
+
+
 
     # # ─── 6) 10-day window projection
     # SUB201
@@ -269,49 +300,49 @@ def main():
     # # ───  Similar Analysis for accuracy ──────────────────────────────────────
 
 
-    visualizations.plot_accuracy_vs_cluster_separation(
-          X_csp_features_scaled,X_csp_features_scaled_2d,
-          y_label, days_label, clf_loaded,
-          start_test_day,end_test_day,dim=2,directory=save_dir)
+    # visualizations.plot_accuracy_vs_cluster_separation(
+    #       X_csp_features_scaled,X_csp_features_scaled_2d,
+    #       y_label, days_label, clf_loaded,
+    #       start_test_day,end_test_day,dim=2,directory=save_dir)
 
 
-    visualizations.plot_accuracy_vs_cluster_separation(
-        X_csp_features_scaled, X_pca_features_2D,
-        y_label, days_label, clf_loaded,
-        start_test_day, end_test_day,
-        dim=2, reducer='PCA',directory=save_dir
-    )
+    # visualizations.plot_accuracy_vs_cluster_separation(
+    #     X_csp_features_scaled, X_pca_features_2D,
+    #     y_label, days_label, clf_loaded,
+    #     start_test_day, end_test_day,
+    #     dim=2, reducer='PCA',directory=save_dir
+    # )
 
 
 
-    visualizations.plot_accuracy_vs_cluster_separation(
-        X_csp_features_scaled,X_umap_features_2D,
-        y_label, days_label, clf_loaded,
-        start_test_day,end_test_day,
-        dim=2, reducer='UMAP',directory=save_dir
-    )
+    # visualizations.plot_accuracy_vs_cluster_separation(
+    #     X_csp_features_scaled,X_umap_features_2D,
+    #     y_label, days_label, clf_loaded,
+    #     start_test_day,end_test_day,
+    #     dim=2, reducer='UMAP',directory=save_dir
+    # )
     
-    visualizations.plot_accuracy_vs_cluster_separation(
-        X_csp_features_scaled,X_pca_features_3D,
-        y_label, days_label, clf_loaded,
-        start_test_day,end_test_day,
-        dim=3, reducer='PCA',directory=save_dir
-    )
+    # visualizations.plot_accuracy_vs_cluster_separation(
+    #     X_csp_features_scaled,X_pca_features_3D,
+    #     y_label, days_label, clf_loaded,
+    #     start_test_day,end_test_day,
+    #     dim=3, reducer='PCA',directory=save_dir
+    # )
     
-    visualizations.plot_accuracy_vs_cluster_separation(
-        X_csp_features_scaled,X_umap_features_3D,
-        y_label, days_label, clf_loaded,
-        start_test_day,end_test_day,
-        dim=3, reducer='UMAP',directory=save_dir
-    )
+    # visualizations.plot_accuracy_vs_cluster_separation(
+    #     X_csp_features_scaled,X_umap_features_3D,
+    #     y_label, days_label, clf_loaded,
+    #     start_test_day,end_test_day,
+    #     dim=3, reducer='UMAP',directory=save_dir
+    # )
 
-    # also plot CSP-space separation (no dimensionality reduction)
-    visualizations.plot_accuracy_vs_cluster_separation(
-        X_csp_features_scaled,X_csp_features_scaled,
-        y_label, days_label, clf_loaded,
-        start_test_day,end_test_day,dim=10,
-        directory=save_dir
-    )
+    # # also plot CSP-space separation (no dimensionality reduction)
+    # visualizations.plot_accuracy_vs_cluster_separation(
+    #     X_csp_features_scaled,X_csp_features_scaled,
+    #     y_label, days_label, clf_loaded,
+    #     start_test_day,end_test_day,dim=10,
+    #     directory=save_dir
+    # )
 
     # visualizations.main_graph(unique_days, accuracies, inter_variances,start_test_day, end_test_day, save_dir, min_window=2, max_window=15)
 
@@ -337,7 +368,7 @@ def main():
     
     # utils.analyze_csp_component_usage(clf_loaded, denoised_signal_test_centered, y_label, class_names=['Idle', 'MI'], plot_expected_vs_empirical=True)
 
-    visualizations.track_centers(spaces,y_label,days_label, save_dir_centers)
+    # visualizations.track_centers(spaces,y_label,days_label, save_dir_centers)
 
 if __name__ == '__main__':
     main()

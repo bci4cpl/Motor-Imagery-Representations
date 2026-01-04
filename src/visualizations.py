@@ -1500,7 +1500,7 @@ def delta_acc_var(X_csp, y_label, days_labels, clf_loaded, start_test_day, end_t
     # Return delta matrices for further analysis if needed
     return delta_acc_matrix, delta_inter_var_matrix, delta_intra_var_matrix_idle, delta_intra_var_matrix_motor
 
-def delta_auc_var(X_csp, y_label, days_labels, clf_loaded, start_test_day, end_test_day, directory, smooth=False, window=5):
+def delta_auc_var(X_csp, y_label, days_labels, clf_loaded, start_test_day, end_test_day, directory, smooth=False, window=5,  delta_offset=0):
 
     unique_days = np.unique(days_labels)
     num_days = len(unique_days)
@@ -1538,20 +1538,12 @@ def delta_auc_var(X_csp, y_label, days_labels, clf_loaded, start_test_day, end_t
 
     # Create a mask for the upper triangle, excluding the diagonal
     # mask = np.triu(np.ones_like(delta_auc_matrix, dtype=bool), k=1)
-
     mask = np.tril(np.ones_like(delta_auc_matrix, dtype=bool), k=-1)
-    #adjustmnets for sub201
-    tick_positions = np.arange(0, num_days, 20)
-    tick_labels = tick_positions + 30
 
-    #adjustmnets for sub205
-    # tick_positions = np.arange(0, num_days)
-    # tick_labels = tick_positions + 3
-
-    #adjustmnets for sub206
-    # tick_positions = np.arange(0, num_days)
-    # tick_labels = tick_positions + 4
-
+    # If many days (Sub 201), step by 20. If few days (Sub 205/206), step by 1.
+    step = 20 if num_days > 30 else 1
+    tick_positions = np.arange(0, num_days, step)
+    tick_labels = tick_positions + delta_offset 
 
     # Masked versions for clean plotting
     masked_auc         = np.where(mask, delta_auc_matrix, np.nan)
@@ -1579,53 +1571,23 @@ def delta_auc_var(X_csp, y_label, days_labels, clf_loaded, start_test_day, end_t
     ax1, ax2, ax3, ax4 = axes.flatten()
     fig1.suptitle('Delta Matrices for AUC and Cluster Variance', fontsize=16)
 
-    cax1 = ax1.matshow(masked_auc, cmap=cmap, norm=norm_auc, interpolation='none')
-    fig1.colorbar(cax1, ax=ax1, fraction=0.046, pad=0.04, label='Δ AUC')
-    ax1.set_title('Δ AUC', fontsize=12, pad=8)
-    ax1.set_aspect('auto')
-    ax1.tick_params(labelsize=9)
-    ax1.set_xticks(tick_positions)
-    ax1.set_xticklabels(tick_labels)
-    ax1.set_xlabel('Day Index')
-    ax1.set_ylabel('Day Index')
-    ax1.set_yticks(tick_positions)
-    ax1.set_yticklabels(tick_labels)
+    def format_matrix_ax(fig,ax, data, title, norm, label):
+        cax = ax.matshow(data, cmap=cmap, norm=norm, interpolation='none')
+        fig.colorbar(cax, ax=ax, fraction=0.046, pad=0.04, label=label)
+        ax.set_title(title, fontsize=12, pad=8)
+        ax.set_aspect('auto')
+        ax.tick_params(labelsize=9)
+        ax.set_xticks(tick_positions)
+        ax.set_xticklabels(tick_labels)
+        ax.set_yticks(tick_positions)
+        ax.set_yticklabels(tick_labels)
+        ax.set_xlabel('Day Index')
+        ax.set_ylabel('Day Index')
 
-    cax2 = ax2.matshow(masked_inter, cmap=cmap, norm=norm_inter, interpolation='none')
-    fig1.colorbar(cax2, ax=ax2, fraction=0.046, pad=0.04, label='Δ Inter-Cluster Distance')
-    ax2.set_title('Δ Inter-Cluster Distance', fontsize=12, pad=8)
-    ax2.set_aspect('auto')
-    ax2.tick_params(labelsize=9)
-    ax2.set_xticks(tick_positions)
-    ax2.set_xlabel('Day Index')
-    ax2.set_ylabel('Day Index')
-    ax2.set_xticklabels(tick_labels)
-    ax2.set_yticks(tick_positions)
-    ax2.set_yticklabels(tick_labels)
-
-    cax3 = ax3.matshow(masked_intra_idle, cmap=cmap, norm=norm_i_idle, interpolation='none')
-    fig1.colorbar(cax3, ax=ax3, fraction=0.046, pad=0.04, label='Δ Intra-Cluster Variance Idle')
-    ax3.set_title('Δ Intra-Cluster Variance Idle', fontsize=12, pad=8)
-    ax3.set_aspect('auto')
-    ax3.tick_params(labelsize=9)
-    ax3.set_xticks(tick_positions)
-    ax3.set_xlabel('Day Index')
-    ax3.set_ylabel('Day Index')
-    ax3.set_xticklabels(tick_labels)
-    ax3.set_yticks(tick_positions)
-    ax3.set_yticklabels(tick_labels)
-
-    cax4 = ax4.matshow(masked_intra_motor, cmap=cmap, norm=norm_i_motor, interpolation='none')
-    fig1.colorbar(cax4, ax=ax4, fraction=0.046, pad=0.04, label='Δ Intra-Cluster Variance MI')
-    ax4.set_title('Δ Intra-Cluster Variance MI', fontsize=12, pad=8)
-    ax4.set_aspect('auto')
-    ax4.tick_params(labelsize=9)
-    ax4.set_xticks(tick_positions)
-    ax4.set_xlabel('Day Index')
-    ax4.set_ylabel('Day Index')
-    ax4.set_xticklabels(tick_labels)
-    ax4.set_yticks(tick_positions)
-    ax4.set_yticklabels(tick_labels)
+    format_matrix_ax(fig1, ax1, masked_auc, 'Δ AUC', norm_auc, 'Δ AUC')
+    format_matrix_ax(fig1, ax2, masked_inter, 'Δ Inter-Cluster Distance', norm_inter, 'Δ Inter-Cluster Distance')
+    format_matrix_ax(fig1, ax3, masked_intra_idle, 'Δ Intra-Cluster Variance Idle', norm_i_idle, 'Δ Intra-Cluster Variance Idle')
+    format_matrix_ax(fig1, ax4, masked_intra_motor, 'Δ Intra-Cluster Variance MI', norm_i_motor, 'Δ Intra-Cluster Variance MI')
 
     fig1.tight_layout()
     fig1.subplots_adjust(hspace=0.4, wspace=0.3)
@@ -1637,32 +1599,9 @@ def delta_auc_var(X_csp, y_label, days_labels, clf_loaded, start_test_day, end_t
     # First figure: Delta Accuracy and Delta Inter-Cluster Variance
     fig2, (ax1, ax2) = plt.subplots(1, 2, figsize=(14, 6))
     fig2.suptitle('Delta AUC and Delta Inter-Cluster Distance', fontsize=14)
-
-    # Plot delta accuracy matrix (masked upper triangle)
-    cax1 = ax1.matshow(masked_auc, cmap=cmap, norm=norm_auc, interpolation='none')
-    fig2.colorbar(cax1, ax=ax1, fraction=0.046, pad=0.04, label='Δ AUC')
-    ax1.set_title('Δ AUC', fontsize=12, pad=8)
-    ax1.set_aspect('auto')
-    ax1.tick_params(labelsize=9)
-    ax1.set_xlabel('Day Index')
-    ax1.set_ylabel('Day Index')
-    ax1.set_xticks(tick_positions)
-    ax1.set_xticklabels(tick_labels)
-    ax1.set_yticks(tick_positions)
-    ax1.set_yticklabels(tick_labels)
-
-    # Plot delta inter-cluster variance matrix (masked upper triangle)
-    cax2 = ax2.matshow(masked_inter, cmap=cmap, norm=norm_inter, interpolation='none')
-    fig2.colorbar(cax2, ax=ax2, fraction=0.046, pad=0.04, label='Δ Inter-Cluster Distance')
-    ax2.set_title('Δ Inter-Cluster Distance', fontsize=12, pad=8)
-    ax2.set_aspect('auto')
-    ax2.tick_params(labelsize=9)
-    ax2.set_xlabel('Day Index')
-    ax2.set_ylabel('Day Index')
-    ax2.set_xticks(tick_positions)
-    ax2.set_xticklabels(tick_labels)
-    ax2.set_yticks(tick_positions)
-    ax2.set_yticklabels(tick_labels)
+    
+    format_matrix_ax(fig2, ax1, masked_auc, 'Δ AUC', norm_auc, 'Δ AUC')
+    format_matrix_ax(fig2, ax2, masked_inter, 'Δ Inter-Cluster Distance', norm_inter, 'Δ Inter-Cluster Distance')
 
     fig2.tight_layout()
     fig2.savefig(os.path.join(directory, f'Delta_AUC_and_Inter_Distance_Upper_Triangle_Test_Day_{start_test_day}_to_{end_test_day - 1}.jpg'))
@@ -1672,31 +1611,8 @@ def delta_auc_var(X_csp, y_label, days_labels, clf_loaded, start_test_day, end_t
     fig3, (ax3, ax4) = plt.subplots(1, 2, figsize=(14, 6))
     fig3.suptitle('Delta Intra-Cluster Variance (Idle and MI)', fontsize=14)
 
-    # Plot delta intra-cluster variance (Idle) matrix (masked upper triangle)
-    cax3 = ax3.matshow(masked_intra_idle, cmap=cmap, norm=norm_i_idle, interpolation='none')
-    fig3.colorbar(cax3, ax=ax3, fraction=0.046, pad=0.04, label='Δ Intra-Cluster Variance Idle')
-    ax3.set_title('Δ Intra-Cluster Variance Idle', fontsize=12, pad=8)
-    ax3.set_aspect('auto')
-    ax3.tick_params(labelsize=9)
-    ax3.set_xlabel('Day Index')
-    ax3.set_ylabel('Day Index')
-    ax3.set_xticks(tick_positions)
-    ax3.set_xticklabels(tick_labels)
-    ax3.set_yticks(tick_positions)
-    ax3.set_yticklabels(tick_labels)
-
-    # Plot delta intra-cluster variance (Motor Imagery) matrix (masked upper triangle)
-    cax4 = ax4.matshow(masked_intra_motor, cmap=cmap, norm=norm_i_motor, interpolation='none')
-    fig3.colorbar(cax4, ax=ax4, fraction=0.046, pad=0.04, label='Δ Intra-Cluster Variance MI')
-    ax4.set_title('Δ Intra-Cluster Variance MI', fontsize=12, pad=8)
-    ax4.set_aspect('auto')
-    ax4.tick_params(labelsize=9)
-    ax4.set_xlabel('Day Index')
-    ax4.set_ylabel('Day Index')
-    ax4.set_xticks(tick_positions)
-    ax4.set_xticklabels(tick_labels)
-    ax4.set_yticks(tick_positions)
-    ax4.set_yticklabels(tick_labels)
+    format_matrix_ax(fig3, ax3, masked_intra_idle, 'Δ Intra-Cluster Variance Idle', norm_i_idle, 'Δ Intra-Cluster Variance Idle')
+    format_matrix_ax(fig3, ax4, masked_intra_motor, 'Δ Intra-Cluster Variance MI', norm_i_motor, 'Δ Intra-Cluster Variance MI')
 
     fig3.tight_layout()
     fig3.savefig(os.path.join(directory, f'Delta_Intra_Variances_Upper_Triangle_Test_Day_{start_test_day}_to_{end_test_day - 1}.jpg'))
@@ -1973,7 +1889,7 @@ def consistency_of_signals(csp_features, days_labels):
     return signal_variances
 
 
-def delta_vs_raw(X_csp, y_label, days_labels, clf_loaded, start_test_day, end_test_day, directory, smooth=False, window=5):
+def delta_vs_raw(X_csp, y_label, days_labels, clf_loaded, start_test_day, end_test_day, directory, smooth=False, window=5, delta_offset=0):
 
     unique_days = np.unique(days_labels)
     num_days = len(unique_days)
@@ -1982,10 +1898,10 @@ def delta_vs_raw(X_csp, y_label, days_labels, clf_loaded, start_test_day, end_te
     lda_loaded = clf_loaded.named_steps['LDA']
 
     for day in unique_days:
+
         day_mask = (days_labels == day)
         X_day = X_csp[day_mask]
         y_day = y_label[day_mask]
-
 
         scores_day = lda_loaded.decision_function(X_day)
         auc = roc_auc_score(y_day, scores_day)
@@ -2011,25 +1927,7 @@ def delta_vs_raw(X_csp, y_label, days_labels, clf_loaded, start_test_day, end_te
 
     # Create a mask for the upper triangle, excluding the diagonal
     # mask = np.triu(np.ones_like(delta_auc_matrix, dtype=bool), k=1)
-
     mask = np.tril(np.ones_like(delta_auc_matrix, dtype=bool), k=-1)
-    #adjustmnets for sub201
-    offset = 30
-    tick_positions = np.arange(0, num_days, 20) + offset
-    tick_labels = tick_positions
-    tick_positions_delta = np.arange(0, num_days, 20)
-
-    #adjustmnets for sub205
-    # offset = 3
-    # tick_positions = np.arange(0, num_days) + offset
-    # tick_labels = tick_positions 
-    # tick_positions_delta = np.arange(0, num_days)
-
-    #adjustmnets for sub206
-    # offset = 4
-    # tick_positions = np.arange(0, num_days) + offset
-    # tick_labels = tick_positions 
-    # tick_positions_delta =np.arange(0, num_days)
 
     # Masked versions for clean plotting
     masked_auc         = np.where(mask, delta_auc_matrix, np.nan)
@@ -2057,6 +1955,11 @@ def delta_vs_raw(X_csp, y_label, days_labels, clf_loaded, start_test_day, end_te
     # -----------------------------
     # If smoothed, the series length may have shrunk; take size from the Δ matrices
     num_days_plot = masked_auc.shape[0]
+    offset = delta_offset
+    step = 20 if num_days_plot > 30 else 1
+    tick_positions_delta = np.arange(0, num_days, step)
+    tick_labels = tick_positions_delta + delta_offset
+    tick_positions = tick_labels
 
     # Day labels (set base_offset per subject)
     day_idx    = np.arange(num_days_plot)
@@ -2076,89 +1979,55 @@ def delta_vs_raw(X_csp, y_label, days_labels, clf_loaded, start_test_day, end_te
                 fontsize=13, fontweight='bold',
                 clip_on=False)   
 
+    # --- Helper for Matrix Plots ---
+    def plot_raw(ax, data, title, ylabel):
+        ax.plot(day_labels, data, lw=1.6)
+        ax.set_title(title, fontsize=12, pad=6)
+        ax.set_ylabel(ylabel)
+        ax.set_xticks(tick_positions)
+        ax.set_xticklabels(tick_labels) 
+        ax.grid(True, alpha=0.25)
 
+    def plot_matrix(ax, data, title, norm, label):
+        im = ax.matshow(data, cmap=cmap, norm=norm, interpolation='none')
+        fig.colorbar(im, ax=ax, fraction=0.046, pad=0.04, label=label)
+        ax.set_title(title, fontsize=12, pad=6)
+        ax.set_aspect('auto')
+        ax.set_xlim(-0.5, num_days_plot - 0.5)
+        ax.set_ylim(num_days_plot - 0.5, -0.5)
+        
+        ax.set_xticks(tick_positions_delta)
+        ax.set_xticklabels(tick_labels)
+        ax.set_yticks(tick_positions_delta)
+        ax.set_yticklabels(tick_labels)
+        ax.set_xlabel("Day Index")
+        ax.set_ylabel("Day Index")
+        return ax
+    
     # ---------- Row 1: AUC ----------
-    ax_auc_raw.plot(day_labels, aucs, lw=1.6)
-    ax_auc_raw.set_title("AUC", fontsize=12, pad=6)
-    ax_auc_raw.set_ylabel("AUC")
-    ax_auc_raw.set_xticks(tick_positions)
-    ax_auc_raw.set_xticklabels(tick_labels)
-    ax_auc_raw.grid(True, alpha=0.25)
-
-    im = ax_auc_delta.matshow(masked_auc, cmap=cmap, norm=norm_auc, interpolation='none')
-    fig.colorbar(im, ax=ax_auc_delta, fraction=0.046, pad=0.04, label="ΔAUC")
-    ax_auc_delta.set_title("ΔAUC", fontsize=12, pad=6)
-    ax_auc_delta.set_aspect('auto')
-    ax_auc_delta.set_xlim(-0.5, num_days_plot - 0.5)
-    ax_auc_delta.set_ylim(num_days_plot - 0.5, -0.5)
-    ax_auc_delta.set_xticks(tick_positions_delta); ax_auc_delta.set_xticklabels(tick_labels)
-    ax_auc_delta.set_yticks(tick_positions_delta); ax_auc_delta.set_yticklabels(tick_labels)
-    ax_auc_delta.set_xlabel("Day Index");     ax_auc_delta.set_ylabel("Day Index")
+    plot_raw(ax_auc_raw, aucs, "AUC", "AUC")
+    plot_matrix(ax_auc_delta, masked_auc, "ΔAUC", norm_auc, "ΔAUC")
 
     # ---------- Row 2: Inter-cluster distance ----------
-    ax_inter_raw.plot(day_labels, inter_variances, lw=1.6)
-    ax_inter_raw.set_title("Inter-cluster distance", fontsize=12, pad=6)
-    ax_inter_raw.set_ylabel("Inter-cluster distance")
-    ax_inter_raw.set_xticks(tick_positions)
-    ax_inter_raw.set_xticklabels(tick_labels)
-    ax_inter_raw.grid(True, alpha=0.25)
-
-    im = ax_inter_delta.matshow(masked_inter, cmap=cmap, norm=norm_inter, interpolation='none')
-    fig.colorbar(im, ax=ax_inter_delta, fraction=0.046, pad=0.04, label="Δ Inter-cluster")
-    ax_inter_delta.set_title("Δ Inter-cluster distance", fontsize=12, pad=6)
-    ax_inter_delta.set_aspect('auto')
-    ax_inter_delta.set_xlim(-0.5, num_days_plot - 0.5)
-    ax_inter_delta.set_ylim(num_days_plot - 0.5, -0.5)
-    ax_inter_delta.set_xticks(tick_positions_delta); ax_inter_delta.set_xticklabels(tick_labels)
-    ax_inter_delta.set_yticks(tick_positions_delta); ax_inter_delta.set_yticklabels(tick_labels)
-    ax_inter_delta.set_xlabel("Day Index");     ax_inter_delta.set_ylabel("Day Index")
+    plot_raw(ax_inter_raw, inter_variances, "Inter-cluster distance", "Inter-cluster")
+    plot_matrix(ax_inter_delta, masked_inter, "Δ Inter-cluster distance", norm_inter, "Δ Inter-cluster")
 
     # ---------- Row 3: Intra (Idle) ----------
-    ax_idle_raw.plot(day_labels, intra_variances_idle, lw=1.6)
-    ax_idle_raw.set_title("Intra-cluster variance Idle", fontsize=12, pad=6)
-    ax_idle_raw.set_ylabel("Intra Idle")
-    ax_idle_raw.set_xticks(tick_positions)
-    ax_idle_raw.set_xticklabels(tick_labels)
-    ax_idle_raw.grid(True, alpha=0.25)
-
-    im = ax_idle_delta.matshow(masked_intra_idle, cmap=cmap, norm=norm_i_idle, interpolation='none')
-    fig.colorbar(im, ax=ax_idle_delta, fraction=0.046, pad=0.04, label="Δ Intra Idle")
-    ax_idle_delta.set_title("Δ Intra-cluster variance Idle", fontsize=12, pad=6)
-    ax_idle_delta.set_aspect('auto')
-    ax_idle_delta.set_xlim(-0.5, num_days_plot - 0.5)
-    ax_idle_delta.set_ylim(num_days_plot - 0.5, -0.5)
-    ax_idle_delta.set_xticks(tick_positions_delta); ax_idle_delta.set_xticklabels(tick_labels)
-    ax_idle_delta.set_yticks(tick_positions_delta); ax_idle_delta.set_yticklabels(tick_labels)
-    ax_idle_delta.set_xlabel("Day Index");     ax_idle_delta.set_ylabel("Day Index")
+    plot_raw(ax_idle_raw, intra_variances_idle, "Intra-cluster variance Idle", "Intra Idle")
+    plot_matrix(ax_idle_delta, masked_intra_idle, "Δ Intra-cluster variance Idle", norm_i_idle, "Δ Intra Idle")
 
     # ---------- Row 4: Intra (MI) ----------
-    ax_mi_raw.plot(day_labels, intra_variances_motor, lw=1.6)
-    ax_mi_raw.set_title("Intra-cluster variance MI", fontsize=12, pad=6)
-    ax_mi_raw.set_ylabel("Intra MI")
-    ax_mi_raw.set_xlabel("Day")   # bottom row shows the x-label
-    ax_mi_raw.set_xticks(tick_positions)
-    ax_mi_raw.set_xticklabels(tick_labels)
-    ax_mi_raw.grid(True, alpha=0.25)
-
-    im = ax_mi_delta.matshow(masked_intra_motor, cmap=cmap, norm=norm_i_motor, interpolation='none')
-    fig.colorbar(im, ax=ax_mi_delta, fraction=0.046, pad=0.04, label="Δ Intra MI")
-    ax_mi_delta.set_title("Δ Intra-cluster variance MI", fontsize=12, pad=6)
-    ax_mi_delta.set_aspect('auto')
-    ax_mi_delta.set_xlim(-0.5, num_days_plot - 0.5)
-    ax_mi_delta.set_ylim(num_days_plot - 0.5, -0.5)
-    ax_mi_delta.set_xticks(tick_positions_delta); ax_mi_delta.set_xticklabels(tick_labels)
-    ax_mi_delta.set_yticks(tick_positions_delta); ax_mi_delta.set_yticklabels(tick_labels)
-    ax_mi_delta.set_xlabel("Day Index");       ax_mi_delta.set_ylabel("Day Index")
+    plot_raw(ax_mi_raw, intra_variances_motor, "Intra-cluster variance MI", "Intra MI")
+    ax_mi_raw.set_xlabel("Day")
+    plot_matrix(ax_mi_delta, masked_intra_motor, "Δ Intra-cluster variance MI", norm_i_motor, "Δ Intra MI")
 
     annotate_past_future(ax_auc_delta)   # Row 1, right column only
-
 
     fig.suptitle(f"Across-Day Dynamics: Raw versus Pairwise Δ", fontsize=16)
     fig.tight_layout()
     out = os.path.join(directory, f"Raw_vs_Delta_{day_labels[0]}_to_{day_labels[-1]}.jpg")
     fig.savefig(out, dpi=300, bbox_inches='tight')
     plt.close(fig)
-
 
 
 
