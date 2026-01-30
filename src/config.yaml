@@ -188,3 +188,61 @@ subjects:
     train_test_days:
       train: [0, 3]
       test:  [3, 9]
+
+
+      
+  - id: "207"
+    best_components: 10
+
+    vis_params:
+      window_dir: "10_day_window"
+      window_size: 10
+      overlap: 0
+      window_smooth: 0
+      label_offset: 3
+      delta_offset: 4
+      start_adj: 1
+      end_adj: 0
+      smooth: False
+      start_day: 1
+
+    data:
+      sub: "207"
+      eyes_state: "OO"
+      data_dir: "{data_root}"
+      block: [1,2,3]
+      trial_len: 6
+      filter_lim: [1, 40]
+      elec_idxs: [0,1,2,3,4,5,6,7,8,9,10]
+      num_days: [0,1,2,3,4,5,6,7,8,9,10,11,12,13]
+      fs: 250
+
+    ae_dir: "{motor_imagery_skill_dir}/AE/sub_{id}"
+    clf_dir: "{motor_imagery_skill_dir}/clf/sub_{id}"
+
+    ae_train_params:
+      n_epochs: 200
+      save_every: 20
+
+
+    ae_paths: #change here to the specific model
+      best_epoch: "{ae_dir}/ae_epoch_20.pt"
+      alternative_epoch: "{ae_dir}/ae_epoch_40.pt"
+
+    clf_paths:
+      best_model: "{clf_dir}/best_model_{best_components}.pkl"
+      pca2d:      "{clf_dir}/pca2D_reducer.pkl"
+      umap2d:     "{clf_dir}/umap2D_reducer.pkl"
+      pca3d:      "{clf_dir}/pca3D_reducer.pkl"
+      umap3d:     "{clf_dir}/umap3D_reducer.pkl"
+
+    cache_dir: "./cache/sub_{id}"
+    figures:
+      base:         "./Figures/sub_{id}"
+      window10:     "./Figures/sub_{id}/10_day_window"
+      centers:      "./Figures/sub_{id}/centers"
+      trial_window: "./Figures/sub_{id}/trial_window"
+
+    train_test_days:
+      train: [0, 3]
+      test:  [3, 13]
