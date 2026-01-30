@@ -5,7 +5,7 @@ import numpy as np
 from loader_var import load_cached_variables
 
 # ─── Configuration ────────────────────────────────────────────────────────────
-# CHANGE THIS ID TO SWITCH SUBJECTS (201, 205, 206)
+# CHANGE THIS ID TO SWITCH SUBJECTS (201, 205, 206,207)
 CURRENT_SUB = '201'
 
 # Base Paths

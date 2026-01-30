@@ -2,6 +2,7 @@ import os
 import yaml
 from sklearn.preprocessing import StandardScaler
 from load_data_CHIST_ERA import Chist_Era_data_extractor
+from load_data_207 import Chist_Era_207_extractor
 import utils
 from denoiser import Denoiser
 import joblib
@@ -9,7 +10,7 @@ import joblib
 
 def main():
     # Load YAML config
-    with open('config.yaml') as f:
+    with open('src/config.yaml') as f:
         cfg = yaml.safe_load(f)
 
     # Global settings
@@ -47,7 +48,10 @@ def main():
         subj_props = {**cfg['ae_params'], **cfg['training_params']}
 
         # 1) Data extraction
-        extractor = Chist_Era_data_extractor(subj_cfg['data'])
+        if subj_cfg['id'] == '207':
+            extractor = Chist_Era_207_extractor(subj_cfg['data'])
+        else:
+            extractor = Chist_Era_data_extractor(subj_cfg['data'])
         eeg_dict  = extractor.get_EEG_dict()
         sub_data  = eeg_dict[subj_cfg['id']]
         train_dataset = utils.EEGDataSet_signal_by_day(sub_data, [start_train, end_train])

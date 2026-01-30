@@ -18,176 +18,176 @@ training_params:
 n_components: [2, 4, 6, 8, 10]
 seed: 42
 AE_mode: "unsupervised"
-mode: "test" # if change to train, please create a new folder for the saved files and change clf_dir and ae_dir to ./new
+mode: "train" # if change to train, please create a new folder for the saved files and change clf_dir and ae_dir to ./new
 
 
 subjects:
-  - id: "201"
-    best_components: 6
+  # - id: "201"
+  #   best_components: 6
 
 
-    vis_params:
-      window_dir: "10_day_window"
-      window_size: 10
-      overlap: 5
-      window_smooth: 5
-      label_offset: 30 
-      delta_offset: 30
-      start_adj: 0
-      end_adj: 0
-      smooth: True
-      start_day: 1
+  #   vis_params:
+  #     window_dir: "10_day_window"
+  #     window_size: 10
+  #     overlap: 5
+  #     window_smooth: 5
+  #     label_offset: 30 
+  #     delta_offset: 30
+  #     start_adj: 0
+  #     end_adj: 0
+  #     smooth: True
+  #     start_day: 1
 
 
-    data:
-      sub: "201"
-      eyes_state: "CC"
-      data_dir: "{data_root}"
-      block: [1]
-      trial_len: 6
-      filter_lim: [1, 40]
-      elec_idxs: [0,1,2,3,4,5,6,7,8,9,10]
+  #   data:
+  #     sub: "201"
+  #     eyes_state: "CC"
+  #     data_dir: "{data_root}"
+  #     block: [1]
+  #     trial_len: 6
+  #     filter_lim: [1, 40]
+  #     elec_idxs: [0,1,2,3,4,5,6,7,8,9,10]
 
-    ae_dir: "{motor_imagery_skill_dir}/AE/sub_{id}"
-    clf_dir: "{motor_imagery_skill_dir}/clf/sub_{id}"
+  #   ae_dir: "{motor_imagery_skill_dir}/AE/sub_{id}"
+  #   clf_dir: "{motor_imagery_skill_dir}/clf/sub_{id}"
 
-    ae_train_params:
-      n_epochs: 1
-      save_every: 1
+  #   ae_train_params:
+  #     n_epochs: 1
+  #     save_every: 1
 
-    ae_paths: #change here to the specific model
-      best_epoch: "{ae_dir}/unsupervised_model_parameters_one_epoch.pt"
-      alternative_epoch: "{ae_dir}/ae_epoch_20.pt"
+  #   ae_paths: #change here to the specific model
+  #     best_epoch: "{ae_dir}/unsupervised_model_parameters_one_epoch.pt"
+  #     alternative_epoch: "{ae_dir}/ae_epoch_20.pt"
 
-    clf_paths:
-      best_model: "{clf_dir}/best_model_{best_components}.pkl"
-      pca2d:      "{clf_dir}/pca2D_reducer.pkl"
-      umap2d:     "{clf_dir}/umap2D_reducer.pkl"
-      pca3d:      "{clf_dir}/pca3D_reducer.pkl"
-      umap3d:     "{clf_dir}/umap3D_reducer.pkl"
+  #   clf_paths:
+  #     best_model: "{clf_dir}/best_model_{best_components}.pkl"
+  #     pca2d:      "{clf_dir}/pca2D_reducer.pkl"
+  #     umap2d:     "{clf_dir}/umap2D_reducer.pkl"
+  #     pca3d:      "{clf_dir}/pca3D_reducer.pkl"
+  #     umap3d:     "{clf_dir}/umap3D_reducer.pkl"
 
-    cache_dir: "./cache/sub_{id}"
-    figures:
-      base:         "./Figures/sub_{id}"
-      window10:     "./Figures/sub_{id}/10_day_window"
-      centers:      "./Figures/sub_{id}/centers"
-      trial_window: "./Figures/sub_{id}/trial_window"
+  #   cache_dir: "./cache/sub_{id}"
+  #   figures:
+  #     base:         "./Figures/sub_{id}"
+  #     window10:     "./Figures/sub_{id}/10_day_window"
+  #     centers:      "./Figures/sub_{id}/centers"
+  #     trial_window: "./Figures/sub_{id}/trial_window"
 
-    train_test_days:
-      train: [0, 30]
-      test:  [30, 133]
+  #   train_test_days:
+  #     train: [0, 30]
+  #     test:  [30, 133]
 
     
 
 
-  - id: "205"
-    best_components: 6
+  # - id: "205"
+  #   best_components: 6
 
-    vis_params:
-      window_dir: "10_day_window"
-      window_size: 5
-      overlap: 0
-      window_smooth: 0
-      label_offset: 3
-      delta_offset: 4
-      start_adj: 1
-      end_adj: -1
-      smooth: False
-      start_day: 1
+  #   vis_params:
+  #     window_dir: "10_day_window"
+  #     window_size: 5
+  #     overlap: 0
+  #     window_smooth: 0
+  #     label_offset: 3
+  #     delta_offset: 4
+  #     start_adj: 1
+  #     end_adj: -1
+  #     smooth: False
+  #     start_day: 1
 
-    data:
-      sub: "205"
-      eyes_state: "CC"
-      data_dir: "{data_root}"
-      block: [1,2,3]
-      trial_len: 6
-      filter_lim: [1, 40]
-      elec_idxs: [0,1,2,3,4,5,6,7,8,9,10]
+  #   data:
+  #     sub: "205"
+  #     eyes_state: "CC"
+  #     data_dir: "{data_root}"
+  #     block: [1,2,3]
+  #     trial_len: 6
+  #     filter_lim: [1, 40]
+  #     elec_idxs: [0,1,2,3,4,5,6,7,8,9,10]
 
-    ae_dir: "{motor_imagery_skill_dir}/AE/sub_{id}"
-    clf_dir: "{motor_imagery_skill_dir}/clf/sub_{id}"
+  #   ae_dir: "{motor_imagery_skill_dir}/AE/sub_{id}"
+  #   clf_dir: "{motor_imagery_skill_dir}/clf/sub_{id}"
 
-    ae_train_params:
-      n_epochs: 200
-      save_every: 20
+  #   ae_train_params:
+  #     n_epochs: 200
+  #     save_every: 20
 
-    ae_paths: #change here to the specific model
-      best_epoch: "{ae_dir}/ae_epoch_20.pt"
-      alternative_epoch: "{ae_dir}/ae_epoch_40.pt"
+  #   ae_paths: #change here to the specific model
+  #     best_epoch: "{ae_dir}/ae_epoch_20.pt"
+  #     alternative_epoch: "{ae_dir}/ae_epoch_40.pt"
 
-    clf_paths:
-      best_model: "{clf_dir}/best_model_{best_components}.pkl"
-      pca2d:      "{clf_dir}/pca2D_reducer.pkl"
-      umap2d:     "{clf_dir}/umap2D_reducer.pkl"
-      pca3d:      "{clf_dir}/pca3D_reducer.pkl"
-      umap3d:     "{clf_dir}/umap3D_reducer.pkl"
+  #   clf_paths:
+  #     best_model: "{clf_dir}/best_model_{best_components}.pkl"
+  #     pca2d:      "{clf_dir}/pca2D_reducer.pkl"
+  #     umap2d:     "{clf_dir}/umap2D_reducer.pkl"
+  #     pca3d:      "{clf_dir}/pca3D_reducer.pkl"
+  #     umap3d:     "{clf_dir}/umap3D_reducer.pkl"
 
-    cache_dir: "./cache/sub_{id}"
-    figures:
-      base:         "./Figures/sub_{id}"
-      window10:     "./Figures/sub_{id}/10_day_window"
-      centers:      "./Figures/sub_{id}/centers"
-      trial_window: "./Figures/sub_{id}/trial_window"
+  #   cache_dir: "./cache/sub_{id}"
+  #   figures:
+  #     base:         "./Figures/sub_{id}"
+  #     window10:     "./Figures/sub_{id}/10_day_window"
+  #     centers:      "./Figures/sub_{id}/centers"
+  #     trial_window: "./Figures/sub_{id}/trial_window"
 
-    train_test_days:
-      train: [0, 3]
-      test:  [3, 8]
-
-
-
-  - id: "206"
-    best_components: 10
-
-    vis_params:
-      window_dir: "10_day_window"
-      window_size: 6
-      overlap: 0
-      window_smooth: 0
-      label_offset: 3
-      delta_offset: 4
-      start_adj: 1
-      end_adj: 0
-      smooth: False
-      start_day: 1
-
-    data:
-      sub: "206"
-      eyes_state: "CC"
-      data_dir: "{data_root}"
-      block: [1,2,3]
-      trial_len: 6
-      filter_lim: [1, 40]
-      elec_idxs: [0,1,2,3,4,5,6,7,8,9,10]
-
-    ae_dir: "{motor_imagery_skill_dir}/AE/sub_{id}"
-    clf_dir: "{motor_imagery_skill_dir}/clf/sub_{id}"
-
-    ae_train_params:
-      n_epochs: 200
-      save_every: 20
+  #   train_test_days:
+  #     train: [0, 3]
+  #     test:  [3, 8]
 
 
-    ae_paths: #change here to the specific model
-      best_epoch: "{ae_dir}/ae_epoch_20.pt"
-      alternative_epoch: "{ae_dir}/ae_epoch_40.pt"
 
-    clf_paths:
-      best_model: "{clf_dir}/best_model_{best_components}.pkl"
-      pca2d:      "{clf_dir}/pca2D_reducer.pkl"
-      umap2d:     "{clf_dir}/umap2D_reducer.pkl"
-      pca3d:      "{clf_dir}/pca3D_reducer.pkl"
-      umap3d:     "{clf_dir}/umap3D_reducer.pkl"
+  # - id: "206"
+  #   best_components: 10
 
-    cache_dir: "./cache/sub_{id}"
-    figures:
-      base:         "./Figures/sub_{id}"
-      window10:     "./Figures/sub_{id}/10_day_window"
-      centers:      "./Figures/sub_{id}/centers"
-      trial_window: "./Figures/sub_{id}/trial_window"
+  #   vis_params:
+  #     window_dir: "10_day_window"
+  #     window_size: 6
+  #     overlap: 0
+  #     window_smooth: 0
+  #     label_offset: 3
+  #     delta_offset: 4
+  #     start_adj: 1
+  #     end_adj: 0
+  #     smooth: False
+  #     start_day: 1
 
-    train_test_days:
-      train: [0, 3]
-      test:  [3, 9]
+  #   data:
+  #     sub: "206"
+  #     eyes_state: "CC"
+  #     data_dir: "{data_root}"
+  #     block: [1,2,3]
+  #     trial_len: 6
+  #     filter_lim: [1, 40]
+  #     elec_idxs: [0,1,2,3,4,5,6,7,8,9,10]
+
+  #   ae_dir: "{motor_imagery_skill_dir}/AE/sub_{id}"
+  #   clf_dir: "{motor_imagery_skill_dir}/clf/sub_{id}"
+
+  #   ae_train_params:
+  #     n_epochs: 200
+  #     save_every: 20
+
+
+  #   ae_paths: #change here to the specific model
+  #     best_epoch: "{ae_dir}/ae_epoch_20.pt"
+  #     alternative_epoch: "{ae_dir}/ae_epoch_40.pt"
+
+  #   clf_paths:
+  #     best_model: "{clf_dir}/best_model_{best_components}.pkl"
+  #     pca2d:      "{clf_dir}/pca2D_reducer.pkl"
+  #     umap2d:     "{clf_dir}/umap2D_reducer.pkl"
+  #     pca3d:      "{clf_dir}/pca3D_reducer.pkl"
+  #     umap3d:     "{clf_dir}/umap3D_reducer.pkl"
+
+  #   cache_dir: "./cache/sub_{id}"
+  #   figures:
+  #     base:         "./Figures/sub_{id}"
+  #     window10:     "./Figures/sub_{id}/10_day_window"
+  #     centers:      "./Figures/sub_{id}/centers"
+  #     trial_window: "./Figures/sub_{id}/trial_window"
+
+  #   train_test_days:
+  #     train: [0, 3]
+  #     test:  [3, 9]
 
 
       
